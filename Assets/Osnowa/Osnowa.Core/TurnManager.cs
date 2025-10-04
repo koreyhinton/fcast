@@ -1,5 +1,7 @@
 ﻿namespace Osnowa.Osnowa.Core
 {
+    using Fcast;
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using Context;
@@ -11,6 +13,9 @@
 
     public class TurnManager : ITurnManager
     {
+	private DateTime _time = DateTime.UtcNow;
+	private TimeSpan _interval = TimeSpan.FromSeconds(2);
+
         private int _lastTurnWhenRemovedDeadActors;
         private int _selectedActorIndex;
 
@@ -67,6 +72,19 @@
                     {
                         if (gameEntity.isPlayerControlled)
                         {
+		//EntityViewBehaviour playerEntityViewBehaviour = playerGameObject.GetComponent<EntityViewBehaviour>();
+		bool tick = false;
+                var elapsed = DateTime.UtcNow - _time;
+		if (elapsed >= _interval)
+		{
+			_time = DateTime.UtcNow;
+			tick = true;
+		}
+                if (gameEntity.hasView)
+                {
+                    var go = ((Osnowa.Unity.EntityViewBehaviour)gameEntity.view.Controller).gameObject;
+		    FcastGameLoop.It(new Game { Over = false, Player = go, Tick = tick });
+                }
                             // for investigation of the bug with multiple pre-turn execution: Debug.Log("Before player turn; energy: " + gameEntity.energy.Energy);
                         }
                         gameEntity.isEnergyReady = true;

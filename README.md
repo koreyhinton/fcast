@@ -1,66 +1,32 @@
-# Osnowa — a roguelike framework for C# with ECS and Unity integration
-## Introduction
-The goal of Osnowa is to simplify creation of roguelike games. It provides a set of tools useful in this genre, as well as a template game. It's also flexible — the framework code is quite decoupled and you can plug your own implementations of interfaces almost everywhere.
+# fcast
+**For Clan and Spoils** real-time strategy/tactical (witcher fan fic game)
 
-The name (spelled _os**noh**vah_) comes from Polish word for [warp](https://en.wikipedia.org/wiki/Warp_and_weft) and indicates Osnowa's purpose to be a solid base for creating grid-based games.
+A derivative work from Osnowa and inspired by the Quinta Essential rogue-like witcher game that was made using the Osnowa framework.
 
-The framework is well integrated with [Unity](https://unity.com) in order not to reinvent the wheel. Unity's features like UI, sprites, tilemaps and assets are used as a presentation and configuration tool. That being said, Osnowa's code is not very tightly bound to Unity engine and after some modifications it would still be possible to use it with something else. It's also possible to use only some modules of Osnowa, like pathfinding or field of view calculation.
+While Osnowa appears to have a flexible architecture approach, fcast is written by me (a Unity newbie) using a quick and dirty approach just to get something up and working (hopefully) by the end of Hacktoberfest.
 
-Actors in Osnowa engine are based on efficient and flexible [Entities-Components-Systems architecture](https://en.wikipedia.org/wiki/Entity_component_system) provided by [Entitas](https://github.com/sschmid/Entitas-CSharp).
+A minor upgrade to 2019.4 LTS (from 2019.2) appears to have upgraded without any observed issues.
 
-If you haven't noticed yet, Osnowa is free and open-source.
+## Licensing
 
-## Made with Osnowa:
+This project is based on the [Osnowa framework](https://github.com/azsdaja/Osnowa) originally licensed under the MIT License. For the original README and framework documentation, please see the Osnowa repository.
 
-The easiest way to see what can be made with Osnowa is to check out these games made for 7DRLs 2018-2020:
+All modifications, additions, and new code in this repository made by Korey Hinton are licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
 
-[Res furtiva](https://pawel-s1.itch.io/res-furtiva)
+This means:
+- The original Osnowa source code remains MIT-licensed.
+- My changes and derivative works (the "fcast" code) are licensed under AGPL-3.0.
+- Combined distributions must comply with AGPL-3.0.
 
-<img src="https://img.itch.zone/aW1hZ2UvNTgyMzYxLzMwNzg3MDAucG5n/original/E7zuKW.png" width=50%/>
+## Linux development exceptions
 
-[Quinta essentia](https://pawel-s1.itch.io/quinta-essentia)
+1. Just launch the editor directly without the hub (since Unity Hub on Ubuntu failed to use custom file locations)
 
-<img src="https://img.itch.zone/aW1hZ2UvMzgwNzAzLzE5Mjc1NjkucG5n/original/dXrZq3.png" width=50%/>
+./Unity -projectPath ../../repos/fcast
 
-[Artifex gladii](https://pawel-s1.itch.io/artifex-gladii)
+2. The editor and projects are large, and if you forgot to reformat an exFAT external volume first, then files will be incorrectly permissioned in git.
 
-<img src="https://img.itch.zone/aW1hZ2UvMjMxMjk0LzExMjY1NDQucG5n/original/L7BD8S.png" width=50%/>
+All you can do is disable fileMode for git-tracked files and be cautious in adding newly tracked files:
 
-## Features
-
-* ECS architecture (using [Entitas](https://github.com/sschmid/Entitas-CSharp)),
-* pathfinding using JPS and A*,
-* Field of View (FOV) calculation,
-* utility-based AI basing on pluggable skills which represent coded activities,
-* energy-based turn management system (following [Robert Nyström's article](http://journal.stuffwithstuff.com/2014/07/15/a-turn-based-game-loop/)),
-* 2D [tilemap](https://github.com/azsdaja/Osnowa/wiki/Tiles) with multiple layers integrated with Unity tilemap; auto-generating context-aware RuleTiles,
-* fast and memory-efficient flood runs / Dijsktra maps (using [FloodSpill](https://github.com/azsdaja/FloodSpill-CSharp) library),
-* map generator (loosely based on [Amit Patel's article](http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/)),
-* storing game assets like configuration and entity definitions using Unity's [ScriptableObjects](http://minhhh.github.io/posts/understanding-unity-scriptableobject).
-* generator of Unity neighbourhood-aware tiles based on prepared tilesheet
-
-Some open-source resources I'm using in the project are:
-* tilesets: [DawnLike](https://opengameart.org/comment/60159), [Calciumtrice dungeon](https://opengameart.org/comment/67057)
-* [Extenject](https://github.com/svermeulen/Extenject) (a Zenject fork) for dependency injection
-
-## Compatibility
-Current version is compatible with Unity 2019.4 (LTS). If needed, it shouldn't be a problem to migrate it to newer or older Unity.
-
-## State of the project
-
-The framework started its life in 2019 when I realised that after over 1 year of full-time development of my own roguelike game I'm more interested in good architecture and tools than in the game itself. Since then I made decision to publish the good parts of what I've made and make it an open-source project. After a few months of refactoring, polishing and simplifying I reached the current state of the framework where it's ready to be used by the others.
-
-However, **keep in mind it's just the beginning of its public life**. Until February 2020 Osnowa hasn't been used by developers other than myself (this luckily changed during 7DRL 2020). Hopefully it will grow, the documentation will be improved and some problems will be solved. But its future will depend on interest, my free time and contributions of other developers. **Also yours. Engagement in the project will be welcome with open hands.**
-
-At the current stage of development consider Osnowa to possibly have breaking changes for each minor version (e.g. between 0.1 and 0.2). Of course many changes may still be merged without problems to your project.
-
-## Getting started
-
-Currently the easiest way for getting familiar with Osnowa is to open the example project built on top of it and look around. [**This instruction**](https://github.com/azsdaja/Osnowa/wiki/Looking-around) will guide you around the project. In the [**wiki**](https://github.com/azsdaja/Osnowa/wiki) there are also more docs about specific features.
-
-Then you should be able to modify the code of the template game which is attached to the project or to try taking some parts of Osnowa to your project.
-
-## Contact
-Feel free to join the **Gitter chat** if you want to talk about the project: https://gitter.im/Osnowa/community
-
-Here's the Twitter account of the creator: https://twitter.com/PawelRoguelikes
+git config core.fileMode false
+chmod -x newcodefile.cs && git add newcodefile.cs

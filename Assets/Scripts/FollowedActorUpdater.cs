@@ -1,6 +1,7 @@
 ﻿using Cinemachine;
 using Osnowa.Osnowa.Unity;
 using UnityEngine;
+using Fcast;
 
 public class FollowedActorUpdater : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class FollowedActorUpdater : MonoBehaviour
 		_followPlayerCamera.Follow = playerGameObject.transform;
 		
 		// todo: will the UI adjust for the new controlled entity? 
-		EntityViewBehaviour playerEntityViewBehaviour = playerGameObject.GetComponent<EntityViewBehaviour>();
+                EntityViewBehaviour playerEntityViewBehaviour = playerGameObject.GetComponent<EntityViewBehaviour>();
+
 	}
 }
