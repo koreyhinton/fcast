@@ -22,11 +22,33 @@ This means:
 
 1. Just launch the editor directly without the hub (since Unity Hub on Ubuntu failed to use custom file locations)
 
-./Unity -projectPath ../../repos/fcast
+    ```
+    ./Unity -projectPath ../../repos/fcast
+    ```
 
 2. The editor and projects are large, and if you forgot to reformat an exFAT external volume first, then files will be incorrectly permissioned in git.
 
-All you can do is disable fileMode for git-tracked files and be cautious in adding newly tracked files:
+    All you can do is disable fileMode for git-tracked files and be cautious in adding newly tracked files:
 
-git config core.fileMode false
-chmod -x newcodefile.cs && git add newcodefile.cs
+    ```
+    git config core.fileMode false
+    chmod -x newcodefile.cs && git add newcodefile.cs
+    ```
+
+## Manifest
+
+```
+# hook to call imperative game loop iteration (FcastGameLoop.It())
+./Assets/Osnowa/Osnowa.Core/TurnManager.cs
+
+# game loop iteration
+./Assets/Scripts/Fcast/FcastGameLoop.cs
+
+# game data
+./Assets/Scripts/Fcast/FcastGameData.cs
+
+# witcher entity
+./Assets/GameAssets/Entities/EntityRecipees/Actors/Player.asset # (see _sprites)
+./Assets/Sprites/Spritesheets/Witcher tileset/Witcher tileset.png.meta
+
+```

@@ -30,6 +30,7 @@
         private readonly RealTimeFeature _realTimeFeature;
         private IGroup<GameEntity> _energyReadyEntities;
         private IGroup<GameEntity> _entitiesWithEnergy;
+        private FcastGameData _gameData = new FcastGameData();
 
         private IOsnowaContextManager _contextManager;
 
@@ -56,6 +57,48 @@
         {
             _stopwatch.Reset();
 
+            if (_gameData.Mages.Count == 0)
+            {
+                foreach (var gameEntity in _entitiesWithEnergy)
+                {
+                    if (!gameEntity.hasView) Debug.Log("null View type");
+                    else Debug.Log((gameEntity.view.Controller).GetType().Name);
+                    if (gameEntity.isPlayerControlled && gameEntity.hasView)
+                    {
+                        var go = ((Osnowa.Unity.EntityViewBehaviour)gameEntity.view.Controller).gameObject;
+                        _gameData.Mages.Add(go);
+                    }
+                }
+            }
+            if (_gameData.Monsters.Count == 0)
+            {
+                foreach (var gameEntity in _entitiesWithEnergy)
+                {
+                    if (!gameEntity.isPlayerControlled && gameEntity.hasIntegrity)
+                    {
+                        _gameData.Monsters.Add(gameEntity);
+                        // Debug.Log("TEST:" + gameEntity.GetType().Name);
+                        // _gameData.Monsters.Add(go);
+                    }
+                }
+
+            }
+		//EntityViewBehaviour playerEntityViewBehaviour = playerGameObject.GetComponent<EntityViewBehaviour>();
+            bool tick = false;
+            var elapsed = DateTime.UtcNow - _time;
+            if (elapsed >= _interval)
+            {
+                _time = DateTime.UtcNow;
+                tick = true;
+            }
+            //if (gameEntity.hasView)
+            //{
+                //var go = ((Osnowa.Unity.EntityViewBehaviour)gameEntity.view.Controller).gameObject;
+                _gameData.Over = false;
+                _gameData.Tick = tick;
+                FcastGameLoop.It(_gameData);
+            //}
+
             bool needsInput = _gameContext.isWaitingForInput && (_gameContext.playerDecision.Decision == Decision.None);
             if (needsInput)
             {
@@ -72,19 +115,6 @@
                     {
                         if (gameEntity.isPlayerControlled)
                         {
-		//EntityViewBehaviour playerEntityViewBehaviour = playerGameObject.GetComponent<EntityViewBehaviour>();
-		bool tick = false;
-                var elapsed = DateTime.UtcNow - _time;
-		if (elapsed >= _interval)
-		{
-			_time = DateTime.UtcNow;
-			tick = true;
-		}
-                if (gameEntity.hasView)
-                {
-                    var go = ((Osnowa.Unity.EntityViewBehaviour)gameEntity.view.Controller).gameObject;
-		    FcastGameLoop.It(new Game { Over = false, Player = go, Tick = tick });
-                }
                             // for investigation of the bug with multiple pre-turn execution: Debug.Log("Before player turn; energy: " + gameEntity.energy.Energy);
                         }
                         gameEntity.isEnergyReady = true;
