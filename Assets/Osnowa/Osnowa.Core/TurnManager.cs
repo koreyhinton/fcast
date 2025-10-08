@@ -65,8 +65,7 @@
                     else Debug.Log((gameEntity.view.Controller).GetType().Name);
                     if (gameEntity.isPlayerControlled && gameEntity.hasView)
                     {
-                        var go = ((Osnowa.Unity.EntityViewBehaviour)gameEntity.view.Controller).gameObject;
-                        _gameData.Mages.Add(go);
+                        _gameData.Mages.Add(gameEntity);
                     }
                 }
             }
@@ -77,13 +76,11 @@
                     if (!gameEntity.isPlayerControlled && gameEntity.hasIntegrity)
                     {
                         _gameData.Monsters.Add(gameEntity);
-                        // Debug.Log("TEST:" + gameEntity.GetType().Name);
-                        // _gameData.Monsters.Add(go);
                     }
                 }
 
             }
-		//EntityViewBehaviour playerEntityViewBehaviour = playerGameObject.GetComponent<EntityViewBehaviour>();
+
             bool tick = false;
             var elapsed = DateTime.UtcNow - _time;
             if (elapsed >= _interval)
@@ -91,13 +88,10 @@
                 _time = DateTime.UtcNow;
                 tick = true;
             }
-            //if (gameEntity.hasView)
-            //{
-                //var go = ((Osnowa.Unity.EntityViewBehaviour)gameEntity.view.Controller).gameObject;
-                _gameData.Over = false;
-                _gameData.Tick = tick;
-                FcastGameLoop.It(_gameData);
-            //}
+            _gameData.Over = false;
+            _gameData.Tick = tick;
+            _gameData.Type = Fcast.GameType.Rts;
+            FcastGameLoop.It(_gameData);
 
             bool needsInput = _gameContext.isWaitingForInput && (_gameContext.playerDecision.Decision == Decision.None);
             if (needsInput)
