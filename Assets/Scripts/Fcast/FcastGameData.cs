@@ -27,6 +27,7 @@ namespace Fcast
         public HashSet<GameEntity> Monsters { get; set; } = new HashSet<GameEntity>();
         public EventIntervalCheck EventIntervalCheck { get; set; } = new EventIntervalCheck();
         public GoldMineIntervalCheck GoldMineIntervalCheck { get; set; } = new GoldMineIntervalCheck();
+        public TimberChopIntervalCheck TimberChopIntervalCheck { get; set; } = new TimberChopIntervalCheck();
         public GameType Type { get; set; }
         public Dictionary<ResourceType, Resource> MageResources { get; set; }
     }
