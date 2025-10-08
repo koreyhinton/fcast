@@ -43,6 +43,22 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         Debug.Log("Gold: " + g.MageResources[ResourceType.Gold].Amount);
     }
 
+    if (g.Type == GameType.Rts)
+    {
+        var location1 = new TimberCheckLocation() { X = 0, Y = 0 };
+        var location2 = new TimberCheckLocation() { X = 1, Y = 0 };
+        var location3 = new TimberCheckLocation() { X = 2, Y = 0 };
+
+        g.TimberChopIntervalCheck.ChopperLocations = new List<TimberCheckLocation>() { location1, location2, location3 };
+        g.TimberChopIntervalCheck.TreeLocations = new List<TimberCheckLocation>() { location1, location2 };
+        g.TimberChopIntervalCheck.Exec();
+    }
+    if (g.TimberChopIntervalCheck)
+    {
+        g.MageResources[ResourceType.Timber].Amount += g.TimberChopIntervalCheck.ChopOutput;
+        Debug.Log("trees: " + g.MageResources[ResourceType.Timber].Amount);
+    }
+
     if (playerLoaded)
     {
         g.EventIntervalCheck.Type = EventIntervalCheckType.PlayerBounce;
