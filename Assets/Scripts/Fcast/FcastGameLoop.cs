@@ -34,9 +34,15 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
 
     if (g.Type == GameType.Rts)
     {
+        g.GoldMineIntervalCheck.Miners = 1;
+        g.GoldMineIntervalCheck.Exec();
+    }
+    if (g.GoldMineIntervalCheck)
+    {
         g.MageResources[ResourceType.Gold].Amount += 1;
         Debug.Log("Gold: " + g.MageResources[ResourceType.Gold].Amount);
     }
+
     if (playerLoaded)
     {
         g.EventIntervalCheck.Type = EventIntervalCheckType.PlayerBounce;
