@@ -5,7 +5,7 @@ A derivative work from Osnowa and inspired by the Quinta Essential rogue-like wi
 
 While Osnowa appears to have a flexible architecture approach, fcast is written by me (a Unity newbie) using a quick and dirty approach just to get something up and working (hopefully) by the end of Hacktoberfest.
 
-A minor upgrade to 2019.4 LTS (from 2019.2) appears to have upgraded without any observed issues.
+A minor upgrade to 2019.4.40f1 LTS (from 2019.4.20f1) was attempted but the editor eventually got into a corrupted state (and could no longer find System std lib files), so was reverted back to using the 2019.4.20f1 editor.
 
 ## Licensing
 
