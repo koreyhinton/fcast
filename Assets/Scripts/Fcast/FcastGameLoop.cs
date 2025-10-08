@@ -5,11 +5,23 @@ using System.Linq; using UnityEngine; namespace Fcast { public static class Fcas
     // var spriteTransform = g.Player?.GetComponentInChildren<SpriteRenderer>()?.transform;
     var player = g.Mages.FirstOrDefault();
 
-    if(!g.Over && g.Tick && player != null /* && spriteTransform != default*/)
+    bool playerLoaded = false;
+    bool playerBounce = false;
+
+    if (player != null)
+        playerLoaded = true;
+
+    if (playerLoaded)
     {
-    Debug.Log("test: " + (g.Player == null ? "null!" : "found"));
-    Debug.Log("test: " + (g.Player?.GetComponentInChildren<SpriteRenderer>()?.transform == null ? "transform null!" : "transform found"));
-        Debug.Log($"Tick. {g.Mages.Count},{g.Monsters.Count}");
+        g.EventIntervalCheck.Type = EventIntervalCheckType.PlayerBounce;
+        g.EventIntervalCheck.Exec();
+    }
+    if (!g.Over && playerLoaded && g.EventIntervalCheck)
+    {
+        playerBounce = true;
+    }
+    if (playerBounce)
+    {
         _i = (_i+1) % angles.Count;
         // var e = spriteTransform.localEulerAngles;
         player.transform.Rotate(0, 0, angles[_i]);
@@ -17,4 +29,5 @@ using System.Linq; using UnityEngine; namespace Fcast { public static class Fcas
         // e.z = angles[_i];
         //spriteTransform.localEulerAngles = new Vector3(0, 0, angles[_i]); //e;
     }
+
 }}}

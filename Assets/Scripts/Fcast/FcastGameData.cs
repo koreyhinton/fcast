@@ -9,5 +9,6 @@ namespace Fcast
         public GameObject Player { get; set; }
         public HashSet<GameObject> Mages { get; set; } = new HashSet<GameObject>();
         public HashSet<GameEntity> Monsters { get; set; } = new HashSet<GameEntity>();
+        public EventIntervalCheck EventIntervalCheck { get; set; } = new EventIntervalCheck();
     }
 }
