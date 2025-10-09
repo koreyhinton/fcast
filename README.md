@@ -41,8 +41,13 @@ This means:
 # hook to call imperative game loop iteration (FcastGameLoop.It())
 ./Assets/Osnowa/Osnowa.Core/TurnManager.cs
 
-# game loop iteration
+# game loop iteration and supporting structures
 ./Assets/Scripts/Fcast/FcastGameLoop.cs
+./Assets/Scripts/Fcast/TimberChopIntervalCheck.cs
+./Assets/Scripts/Fcast/GoldMineIntervalCheck.cs
+./Assets/Scripts/Fcast/EventIntervalCheck.cs
+./Assets/Scripts/Fcast/ExecCheck.cs
+./Assets/Scripts/Fcast/IExec.cs
 
 # game data
 ./Assets/Scripts/Fcast/FcastGameData.cs
@@ -51,4 +56,12 @@ This means:
 ./Assets/GameAssets/Entities/EntityRecipees/Actors/Player.asset # (see _sprites)
 ./Assets/Sprites/Spritesheets/Witcher tileset/Witcher tileset.png.meta
 
+# Entitas-generated properties (partial to GameEntity)
+./Assets/Scripts/Generated/Game/Components/Game{View,Held,etc}Component.cs
+
+# Scene (re-open this file in the Unity editor "Project" tab after re-import)
+./Assets/Scene.unity
+
+# Abilities, ([A]im) choose "Project" tab to see the key binding in "Inspector"
+./Assets/GameAssets/Abilities/Aim.asset.meta
 ```
