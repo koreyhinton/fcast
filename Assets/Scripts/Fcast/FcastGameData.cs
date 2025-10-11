@@ -30,5 +30,8 @@ namespace Fcast
         public TimberChopIntervalCheck TimberChopIntervalCheck { get; set; } = new TimberChopIntervalCheck();
         public GameType Type { get; set; }
         public Dictionary<ResourceType, Resource> MageResources { get; set; }
+        public BuildingEventIntervalCheck BuildingEventIntervalCheck { get; set; } = new BuildingEventIntervalCheck();
+        public BuildingUpdateViewsCheck BuildingUpdateViewsCheck { get; set; } = new BuildingUpdateViewsCheck();
+        public InputSequenceCheck InputSequenceCheck { get; set; } = new InputSequenceCheck();
     }
 }

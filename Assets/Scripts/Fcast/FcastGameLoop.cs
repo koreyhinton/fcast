@@ -8,6 +8,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
 
     bool playerLoaded = false;
     bool playerBounce = false;
+    bool aimEnded = false; // todo: handle more key bindings for building types (for now just using builtin ESC)
 
     if (g.MageResources == null)
     {
@@ -61,6 +62,8 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
 
     if (playerLoaded)
     {
+        g.InputSequenceCheck.Exec();
+
         g.EventIntervalCheck.Type = EventIntervalCheckType.PlayerBounce;
         g.EventIntervalCheck.Exec();
     }
@@ -77,5 +80,66 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         // e.z = angles[_i];
         //spriteTransform.localEulerAngles = new Vector3(0, 0, angles[_i]); //e;
     }
+    if (g.InputSequenceCheck)
+    {
+        // todo: ideally use the location that you'd aim at, but for now just use player position
+        // Debug.Log("YES!");
+        aimEnded = true;
+    }
+
+    bool aimWillConstructBuilding = false;
+    bool aimWillTryBakeUnit = false;
+    int playerX = -1;
+    int playerY = -1;
+    bool addBuildingQuery = false;
+    if (aimEnded)
+    {
+        playerX = (int)playerView.transform.position.x; //(int)(playerView.Position.X);
+        playerY = (int)playerView.transform.position.y; //(int)(playerView.Position.Y);
+        g.BuildingEventIntervalCheck.X = playerX;
+        g.BuildingEventIntervalCheck.Y = playerY;
+        g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Construct;
+    }
+    if (aimEnded && g.BuildingEventIntervalCheck)
+    {
+        aimWillConstructBuilding = true;
+        g.BuildingUpdateViewsCheck.AddQueryX = playerX;
+        g.BuildingUpdateViewsCheck.AddQueryY = playerY;
+        addBuildingQuery = true;
+    }
+
+    if (aimEnded && !aimWillConstructBuilding)
+    {
+        aimWillTryBakeUnit = true;
+    }
+    if (aimWillTryBakeUnit)
+    {
+        g.BuildingEventIntervalCheck.Seconds = 20;
+        g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Bake;
+    }
+    if (aimWillTryBakeUnit && g.BuildingEventIntervalCheck)
+    {
+    }
+
+    // BUILDING VIEW UPDATES
+    if (g.BuildingUpdateViewsCheck.BuildingEventIntervalCheck == null)
+    {
+        g.BuildingUpdateViewsCheck.BuildingEventIntervalCheck = g.BuildingEventIntervalCheck;
+    }
+    if (addBuildingQuery)
+    {
+        g.BuildingUpdateViewsCheck.AddQueryX = playerX;
+        g.BuildingUpdateViewsCheck.AddQueryY = playerY;
+    }
+    if (playerLoaded)
+    {
+        g.BuildingUpdateViewsCheck.Exec();
+    }
+    if (g.BuildingUpdateViewsCheck)
+    {
+        Debug.Log("Building Views updated");
+    }
+
+
 
 }}}
