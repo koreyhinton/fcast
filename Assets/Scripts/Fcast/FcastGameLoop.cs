@@ -8,6 +8,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
 
     bool playerLoaded = false;
     bool playerBounce = false;
+    bool aimEnded = false; // todo: handle more key bindings for building types (for now just using builtin ESC)
 
     if (g.MageResources == null)
     {
@@ -40,7 +41,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     if (g.GoldMineIntervalCheck)
     {
         g.MageResources[ResourceType.Gold].Amount += 1;
-        Debug.Log("Gold: " + g.MageResources[ResourceType.Gold].Amount);
+        // Debug.Log("Gold: " + g.MageResources[ResourceType.Gold].Amount);
     }
 
     if (g.Type == GameType.Rts)
@@ -56,11 +57,13 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     if (g.TimberChopIntervalCheck)
     {
         g.MageResources[ResourceType.Timber].Amount += g.TimberChopIntervalCheck.ChopOutput;
-        Debug.Log("trees: " + g.MageResources[ResourceType.Timber].Amount);
+        // Debug.Log("trees: " + g.MageResources[ResourceType.Timber].Amount);
     }
 
     if (playerLoaded)
     {
+        g.InputSequenceCheck.Exec();
+
         g.EventIntervalCheck.Type = EventIntervalCheckType.PlayerBounce;
         g.EventIntervalCheck.Exec();
     }
@@ -73,9 +76,70 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         _i = (_i+1) % angles.Count;
         // var e = spriteTransform.localEulerAngles;
         playerView.transform.Rotate(0, 0, angles[_i]);
-        Debug.Log("e.z = " + angles[_i]);
+        // Debug.Log("e.z = " + angles[_i]);
         // e.z = angles[_i];
         //spriteTransform.localEulerAngles = new Vector3(0, 0, angles[_i]); //e;
     }
+    if (g.InputSequenceCheck)
+    {
+        // todo: ideally use the location that you'd aim at, but for now just use player position
+        aimEnded = true;
+    }
+
+    bool aimWillConstructBuilding = false;
+    bool aimWillTryBakeUnit = false;
+    int playerX = -1;
+    int playerY = -1;
+    bool addBuildingQuery = false;
+    if (aimEnded)
+    {
+        playerX = (int)playerView.transform.position.x; //(int)(playerView.Position.X);
+        playerY = (int)playerView.transform.position.y; //(int)(playerView.Position.Y);
+        g.BuildingEventIntervalCheck.X = playerX;
+        g.BuildingEventIntervalCheck.Y = playerY;
+        g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Construct;
+        g.BuildingEventIntervalCheck.Exec();
+    }
+    if (aimEnded && g.BuildingEventIntervalCheck)
+    {
+        aimWillConstructBuilding = true;
+        g.BuildingUpdateViewsCheck.AddQueryX = playerX;
+        g.BuildingUpdateViewsCheck.AddQueryY = playerY;
+        addBuildingQuery = true;
+    }
+
+    if (aimEnded && !aimWillConstructBuilding)
+    {
+        aimWillTryBakeUnit = true;
+    }
+    if (aimWillTryBakeUnit)
+    {
+        g.BuildingEventIntervalCheck.Seconds = 20;
+        g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Bake;
+    }
+    if (aimWillTryBakeUnit && g.BuildingEventIntervalCheck)
+    {
+    }
+
+    // BUILDING VIEW UPDATES
+    if (g.BuildingUpdateViewsCheck.BuildingEventIntervalCheck == null)
+    {
+        g.BuildingUpdateViewsCheck.BuildingEventIntervalCheck = g.BuildingEventIntervalCheck;
+    }
+    if (addBuildingQuery)
+    {
+        g.BuildingUpdateViewsCheck.AddQueryX = playerX;
+        g.BuildingUpdateViewsCheck.AddQueryY = playerY;
+    }
+    if (playerLoaded)
+    {
+        g.BuildingUpdateViewsCheck.Exec();
+    }
+    if (playerLoaded && g.BuildingUpdateViewsCheck)
+    {
+        // Debug.Log("Building Views updated");
+    }
+
+
 
 }}}
