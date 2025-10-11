@@ -51,7 +51,7 @@ namespace Osnowa.Osnowa.Unity
             IEnumerable<GameEntity> entitiesHit = hitObjects
                 .Select(c => c.GetComponent<EntityViewBehaviour>())
                 .Select(v => v.Entity)
-                .Where(e => e.hasPosition);
+                .Where(e => e != null && e.hasPosition); // buildings are not handled by game entities / entitas
 
             return entitiesHit;
         }

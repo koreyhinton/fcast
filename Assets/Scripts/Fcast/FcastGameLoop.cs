@@ -41,7 +41,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     if (g.GoldMineIntervalCheck)
     {
         g.MageResources[ResourceType.Gold].Amount += 1;
-        Debug.Log("Gold: " + g.MageResources[ResourceType.Gold].Amount);
+        // Debug.Log("Gold: " + g.MageResources[ResourceType.Gold].Amount);
     }
 
     if (g.Type == GameType.Rts)
@@ -57,7 +57,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     if (g.TimberChopIntervalCheck)
     {
         g.MageResources[ResourceType.Timber].Amount += g.TimberChopIntervalCheck.ChopOutput;
-        Debug.Log("trees: " + g.MageResources[ResourceType.Timber].Amount);
+        // Debug.Log("trees: " + g.MageResources[ResourceType.Timber].Amount);
     }
 
     if (playerLoaded)
@@ -76,14 +76,13 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         _i = (_i+1) % angles.Count;
         // var e = spriteTransform.localEulerAngles;
         playerView.transform.Rotate(0, 0, angles[_i]);
-        Debug.Log("e.z = " + angles[_i]);
+        // Debug.Log("e.z = " + angles[_i]);
         // e.z = angles[_i];
         //spriteTransform.localEulerAngles = new Vector3(0, 0, angles[_i]); //e;
     }
     if (g.InputSequenceCheck)
     {
         // todo: ideally use the location that you'd aim at, but for now just use player position
-        // Debug.Log("YES!");
         aimEnded = true;
     }
 
@@ -99,6 +98,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         g.BuildingEventIntervalCheck.X = playerX;
         g.BuildingEventIntervalCheck.Y = playerY;
         g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Construct;
+        g.BuildingEventIntervalCheck.Exec();
     }
     if (aimEnded && g.BuildingEventIntervalCheck)
     {
@@ -135,9 +135,9 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     {
         g.BuildingUpdateViewsCheck.Exec();
     }
-    if (g.BuildingUpdateViewsCheck)
+    if (playerLoaded && g.BuildingUpdateViewsCheck)
     {
-        Debug.Log("Building Views updated");
+        // Debug.Log("Building Views updated");
     }
 
 

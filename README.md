@@ -46,6 +46,9 @@ This means:
 ./Assets/Scripts/Fcast/TimberChopIntervalCheck.cs
 ./Assets/Scripts/Fcast/GoldMineIntervalCheck.cs
 ./Assets/Scripts/Fcast/EventIntervalCheck.cs
+./Assets/Scripts/Fcast/InputSequenceCheck.cs
+./Assets/Scripts/Fcast/BuildingEventIntervalCheck.cs
+./Assets/Scripts/Fcast/BuildingUpdateViewsCheck.cs
 ./Assets/Scripts/Fcast/ExecCheck.cs
 ./Assets/Scripts/Fcast/IExec.cs
 
@@ -64,4 +67,8 @@ This means:
 
 # Abilities, ([A]im) choose "Project" tab to see the key binding in "Inspector"
 ./Assets/GameAssets/Abilities/Aim.asset.meta
+
+# Graceful null handling added to allow imperative building views:
+./Assets/Osnowa/Osnowa.Grid/EntityPresenter.cs      # GetVisibleEntities()
+./Assets/Osnowa/Osnowa.Unity/UnityEntityDetector.cs # FilterEntities()
 ```

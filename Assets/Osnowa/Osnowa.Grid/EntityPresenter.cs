@@ -57,6 +57,7 @@ namespace Osnowa.Osnowa.Grid
 			var result = new HashSet<IPositionedEntity>();
 			foreach (IPositionedEntity entity in entitiesInArea)
 			{
+				if (entity == null) continue; // buildings are handled in fcast game loop
 				Position entityPositionOnGrid = entity.Position;
 				if (visibleTiles.Contains(entityPositionOnGrid))
 					result.Add(entity);

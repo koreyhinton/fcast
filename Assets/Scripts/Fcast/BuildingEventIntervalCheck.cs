@@ -62,6 +62,7 @@ namespace Fcast
                     else
                         timer.Time = now;
                     Check = true;
+                    return;
                 }
                 Check = false;
             }

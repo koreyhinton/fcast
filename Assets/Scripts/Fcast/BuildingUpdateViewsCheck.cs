@@ -28,7 +28,9 @@ namespace Fcast
                 Check = true;
                 return;
             }
-            Debug.Log("executing queries" + _queries.Count);
+            //if (_queries.Count > 0)
+            //    Debug.Log("EXEC QUERY");
+            //Debug.Log("executing queries" + _queries.Count);
             bool updated = false;
             foreach (var xy in _queries)
             {
@@ -43,8 +45,7 @@ namespace Fcast
                     {
                         case BuildingEventIntervalType.Construct:
                         {
-                            Debug.Log("BUILDING CONSTRUCTED!!!!!!!!!!!!!!1");
-                            var prefab = Resources.Load<GameObject>("Assets/Resources/Prefabs/BuildingView.prefab");
+                            var prefab = Resources.Load<GameObject>("Prefabs/BuildingView");
                             UnityEngine.Object.Instantiate(
                                 prefab,
                                 new Vector3((float)xy.X, (float)xy.Y, 0f),
