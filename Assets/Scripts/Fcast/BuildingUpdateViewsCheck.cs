@@ -13,7 +13,9 @@ namespace Fcast
         public BuildingEventIntervalCheck BuildingEventIntervalCheck { get; set; }
         public int AddQueryX { get; set; } = -1;
         public int AddQueryY { get; set; } = -1;
+        public Dictionary<char, int> Counts = new Dictionary<char, int>(2);
         private List<XY> _queries { get; set; } = new List<XY>();
+        //private UnityEngine.Object[] _textures;
 
         public override void Exec()
         {
@@ -45,13 +47,51 @@ namespace Fcast
                     {
                         case BuildingEventIntervalType.Construct:
                         {
-                            var prefab = Resources.Load<GameObject>("Prefabs/BuildingView");
+                            var buildingChoice = BuildingEventIntervalCheck.BuildingType;
+                            // todo: add back in break and then use the Bake case below instead (once it is working)
+                            /*if (buildingChoice == 'p')
+                            {
+                                break;
+                            }*/
+                            string prefabName = string.Empty;
+                            if (buildingChoice == 't')
+                            {
+                                prefabName = "Prefabs/BuildingView"; // temple
+                                Counts['t']++;
+                            }
+                            if (buildingChoice == 'p') // todo: use the Bake case below instead (once it is working)
+                            {
+                                prefabName = "Prefabs/PriestessView"; // priestess
+                                Counts['p']++;
+                            }
+                            var prefab = Resources.Load<GameObject>(prefabName);
                             UnityEngine.Object.Instantiate(
                                 prefab,
                                 new Vector3((float)xy.X, (float)xy.Y, 0f),
                                 Quaternion.identity,
                                 /*parent:*/ null
                             );
+
+                            updated = true;
+                            break;
+                        }
+                        case BuildingEventIntervalType.Bake:
+                        {
+                            var buildingChoice = BuildingEventIntervalCheck.BuildingType;
+                            string prefabName = string.Empty;
+                            if (buildingChoice == 'p')
+                            {
+                                prefabName = "Prefabs/PriestessView"; // priestess
+                                Counts['p']++;
+                            }
+                            var prefab = Resources.Load<GameObject>(prefabName);
+                            UnityEngine.Object.Instantiate(
+                                prefab,
+                                new Vector3((float)xy.X, (float)xy.Y, 0f),
+                                Quaternion.identity,
+                                /*parent:*/ null
+                            );
+
                             updated = true;
                             break;
                         }
@@ -64,6 +104,9 @@ namespace Fcast
         }
         public BuildingUpdateViewsCheck()
         {
+            Counts['t'] = 0;
+            Counts['p'] = 0;
+            //_textures = Resources.LoadAll<GameObject>("Prefabs/BuildingView");
         }
     }
 }
