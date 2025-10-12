@@ -20,6 +20,7 @@ namespace Fcast
     }
     public class FcastGameData
     {
+        public int TempleCount { get; set; } = 0;
         public bool Tick { get; set; }
         public bool Over { get; set; } 
         public GameObject Player { get; set; }

@@ -92,7 +92,7 @@ namespace Fcast
 
             // SEQUENCE STEP 3 - ESC TO CANCEL AIM
             var expectEscKey = _runningSequence[0] == 'a' &&
-                _runningSequence[1] != (char)0 &&
+                //_runningSequence[1] != (char)0 &&
                 _runningSequence[2] == (char)0;
             if (expectEscKey)
             {

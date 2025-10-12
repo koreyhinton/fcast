@@ -97,22 +97,23 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         buildingX = playerX + g.InputSequenceCheck.Offset.X;
         buildingY = playerY + g.InputSequenceCheck.Offset.Y;        
     }
-    if (aimedAndBuilt && g.BuildingEventIntervalCheck.BuildingType == 't')
+    if (aimedAndBuilt && g.InputSequenceCheck.BuildingChoice == 't')
     {
         buildingX -= 1; //temple buildings are wide, -1 to center it
         g.MageResources[ResourceType.Gold].Amount -= 200;
         Debug.Log("Bought Temple, remaining gold: " + g.MageResources[ResourceType.Gold].Amount);
     }
-    if (aimedAndBuilt && g.BuildingEventIntervalCheck.BuildingType != 'p')
+    if (aimedAndBuilt && g.InputSequenceCheck.BuildingChoice != 'p')
     {
         Debug.Log("building " + g.InputSequenceCheck.BuildingChoice + " at: " + buildingX + "," + buildingY);
         g.BuildingEventIntervalCheck.X = buildingX;
         g.BuildingEventIntervalCheck.Y = buildingY;
         g.BuildingEventIntervalCheck.BuildingType = g.InputSequenceCheck.BuildingChoice;
         g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Construct;
+        g.BuildingEventIntervalCheck.Seconds = 0;
         g.BuildingEventIntervalCheck.Exec();
     }
-    if (aimedAndBuilt && g.BuildingEventIntervalCheck.BuildingType != 'p' && g.BuildingEventIntervalCheck)
+    if (aimedAndBuilt && g.InputSequenceCheck.BuildingChoice != 'p' && g.BuildingEventIntervalCheck)
     {
         aimWillConstructBuilding = true;
         g.BuildingUpdateViewsCheck.AddQueryX = buildingX;
@@ -120,22 +121,35 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         addBuildingQuery = true;
     }
 
-    if (aimedAndBuilt && !aimWillConstructBuilding && g.BuildingEventIntervalCheck.BuildingType == 'p')
+    if (aimedAndBuilt && !aimWillConstructBuilding && g.BuildingUpdateViewsCheck.Counts['t'] > 0 && g.InputSequenceCheck.BuildingChoice == 'p')
     {
-        // priestess
+        // priestess (only build if there's a temple)
         aimWillTryBakeUnit = true;
     }
     if (aimWillTryBakeUnit)
     {
+        Debug.Log("Prepare to bake");
         g.BuildingEventIntervalCheck.X = buildingX;
         g.BuildingEventIntervalCheck.Y = buildingY;
-        g.BuildingEventIntervalCheck.Seconds = 20;
-        g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Bake;
-    }
-    if (aimWillTryBakeUnit && g.BuildingEventIntervalCheck)
-    {
+        g.BuildingEventIntervalCheck.Seconds = 0;
+        g.BuildingEventIntervalCheck.BuildingType = 'p';
+        g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Construct;
+        g.BuildingEventIntervalCheck.Exec(); // once for construct
         addBuildingQuery = true;
     }
+    // todo: once bake timer bug is fixed, uncommnet to have it be timed:
+    /*if (aimWillTryBakeUnit && g.BuildingEventIntervalCheck)
+    {
+        Debug.Log("Prepare to bake 2");
+        addBuildingQuery = true;
+        g.BuildingEventIntervalCheck.X = buildingX;
+        g.BuildingEventIntervalCheck.Y = buildingY;
+        g.BuildingEventIntervalCheck.BuildingType = 'p';
+        g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Bake;
+        g.BuildingEventIntervalCheck.Seconds = 20; // 20 seconds is max time, 5 is min time
+        for (int i=0; i<3 && i<g.BuildingUpdateViewsCheck.Counts['t']; i++) g.BuildingEventIntervalCheck.Seconds /= 2;
+        g.BuildingEventIntervalCheck.Exec(); // second for bake
+    }*/
 
     // BUILDING VIEW UPDATES
     if (g.BuildingUpdateViewsCheck.BuildingEventIntervalCheck == null)
@@ -144,6 +158,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     }
     if (addBuildingQuery)
     {
+        Debug.Log("building query");
         g.BuildingUpdateViewsCheck.AddQueryX = buildingX;
         g.BuildingUpdateViewsCheck.AddQueryY = buildingY;
     }
@@ -153,6 +168,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     }
     if (playerLoaded && g.BuildingUpdateViewsCheck)
     {
+        g.TempleCount = g.BuildingUpdateViewsCheck.Counts['t'];
         // Debug.Log("Building Views updated");
     }
 

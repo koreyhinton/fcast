@@ -20,11 +20,24 @@ This means:
 
 ## Controls
 
-Aim and build a temple:
+Aim and end aim (ESC):
+
+```
+a <ARROWS> ESC
+```
+
+Aim and build a **t**emple:
 
 ```
 a <ARROWS> t ESC
 ```
+
+Aim and build a temple and a **p**riestess:
+
+```
+a <ARROWS> t <ARROWS> p ESC
+```
+
 
 ## Linux development exceptions
 
