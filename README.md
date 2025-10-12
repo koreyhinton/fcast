@@ -18,6 +18,14 @@ This means:
 - My changes and derivative works (the "fcast" code) are licensed under AGPL-3.0.
 - Combined distributions must comply with AGPL-3.0.
 
+## Controls
+
+Aim and build a temple:
+
+```
+a <ARROWS> t ESC
+```
+
 ## Linux development exceptions
 
 1. Just launch the editor directly without the hub (since Unity Hub on Ubuntu failed to use custom file locations)

@@ -14,6 +14,7 @@ namespace Fcast
         public int AddQueryX { get; set; } = -1;
         public int AddQueryY { get; set; } = -1;
         private List<XY> _queries { get; set; } = new List<XY>();
+        //private UnityEngine.Object[] _textures;
 
         public override void Exec()
         {
@@ -45,13 +46,18 @@ namespace Fcast
                     {
                         case BuildingEventIntervalType.Construct:
                         {
-                            var prefab = Resources.Load<GameObject>("Prefabs/BuildingView");
+                            var buildingChoice = BuildingEventIntervalCheck.BuildingType;
+                            string prefabName = string.Empty;
+                            if (buildingChoice == 't')
+                                prefabName = "Prefabs/BuildingView"; // temple
+                            var prefab = Resources.Load<GameObject>(prefabName);
                             UnityEngine.Object.Instantiate(
                                 prefab,
                                 new Vector3((float)xy.X, (float)xy.Y, 0f),
                                 Quaternion.identity,
                                 /*parent:*/ null
                             );
+
                             updated = true;
                             break;
                         }
@@ -64,6 +70,7 @@ namespace Fcast
         }
         public BuildingUpdateViewsCheck()
         {
+            //_textures = Resources.LoadAll<GameObject>("Prefabs/BuildingView");
         }
     }
 }

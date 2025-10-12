@@ -8,7 +8,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
 
     bool playerLoaded = false;
     bool playerBounce = false;
-    bool aimEnded = false; // todo: handle more key bindings for building types (for now just using builtin ESC)
+    bool aimedAndBuilt = false; // todo: handle more key bindings for building types (for now just using builtin ESC)
 
     if (g.MageResources == null)
     {
@@ -82,43 +82,59 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     }
     if (g.InputSequenceCheck)
     {
-        // todo: ideally use the location that you'd aim at, but for now just use player position
-        aimEnded = true;
+        aimedAndBuilt = true;
     }
 
     bool aimWillConstructBuilding = false;
     bool aimWillTryBakeUnit = false;
-    int playerX = -1;
-    int playerY = -1;
+    int buildingX = -1;
+    int buildingY = -1;
     bool addBuildingQuery = false;
-    if (aimEnded)
+    if (aimedAndBuilt)
     {
-        playerX = (int)playerView.transform.position.x; //(int)(playerView.Position.X);
-        playerY = (int)playerView.transform.position.y; //(int)(playerView.Position.Y);
-        g.BuildingEventIntervalCheck.X = playerX;
-        g.BuildingEventIntervalCheck.Y = playerY;
+        var playerX = (int)playerView.transform.position.x; //(int)(playerView.Position.X);
+        var playerY = (int)playerView.transform.position.y; //(int)(playerView.Position.Y);
+        buildingX = playerX + g.InputSequenceCheck.Offset.X;
+        buildingY = playerY + g.InputSequenceCheck.Offset.Y;        
+    }
+    if (aimedAndBuilt && g.BuildingEventIntervalCheck.BuildingType == 't')
+    {
+        buildingX -= 1; //temple buildings are wide, -1 to center it
+        g.MageResources[ResourceType.Gold].Amount -= 200;
+        Debug.Log("Bought Temple, remaining gold: " + g.MageResources[ResourceType.Gold].Amount);
+    }
+    if (aimedAndBuilt && g.BuildingEventIntervalCheck.BuildingType != 'p')
+    {
+        Debug.Log("building " + g.InputSequenceCheck.BuildingChoice + " at: " + buildingX + "," + buildingY);
+        g.BuildingEventIntervalCheck.X = buildingX;
+        g.BuildingEventIntervalCheck.Y = buildingY;
+        g.BuildingEventIntervalCheck.BuildingType = g.InputSequenceCheck.BuildingChoice;
         g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Construct;
         g.BuildingEventIntervalCheck.Exec();
     }
-    if (aimEnded && g.BuildingEventIntervalCheck)
+    if (aimedAndBuilt && g.BuildingEventIntervalCheck.BuildingType != 'p' && g.BuildingEventIntervalCheck)
     {
         aimWillConstructBuilding = true;
-        g.BuildingUpdateViewsCheck.AddQueryX = playerX;
-        g.BuildingUpdateViewsCheck.AddQueryY = playerY;
+        g.BuildingUpdateViewsCheck.AddQueryX = buildingX;
+        g.BuildingUpdateViewsCheck.AddQueryY = buildingY;
         addBuildingQuery = true;
     }
 
-    if (aimEnded && !aimWillConstructBuilding)
+    if (aimedAndBuilt && !aimWillConstructBuilding && g.BuildingEventIntervalCheck.BuildingType == 'p')
     {
+        // priestess
         aimWillTryBakeUnit = true;
     }
     if (aimWillTryBakeUnit)
     {
+        g.BuildingEventIntervalCheck.X = buildingX;
+        g.BuildingEventIntervalCheck.Y = buildingY;
         g.BuildingEventIntervalCheck.Seconds = 20;
         g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Bake;
     }
     if (aimWillTryBakeUnit && g.BuildingEventIntervalCheck)
     {
+        addBuildingQuery = true;
     }
 
     // BUILDING VIEW UPDATES
@@ -128,8 +144,8 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     }
     if (addBuildingQuery)
     {
-        g.BuildingUpdateViewsCheck.AddQueryX = playerX;
-        g.BuildingUpdateViewsCheck.AddQueryY = playerY;
+        g.BuildingUpdateViewsCheck.AddQueryX = buildingX;
+        g.BuildingUpdateViewsCheck.AddQueryY = buildingY;
     }
     if (playerLoaded)
     {

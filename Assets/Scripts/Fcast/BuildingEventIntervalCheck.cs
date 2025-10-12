@@ -8,6 +8,7 @@ namespace Fcast
         public TimeSpan Interval { get; set; }
         public BuildingEventIntervalType EventType { get; set; }
         public bool Done { get; set; } = false;
+        public char BuildingType { get; set; } = (char)0;
         public bool Elapsed()
         {
             if (Done)
@@ -25,6 +26,7 @@ namespace Fcast
     }
     public class BuildingEventIntervalCheck : ExecCheck
     {
+        public char BuildingType { get; set; } = (char)0;
         public float Seconds { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
@@ -47,7 +49,10 @@ namespace Fcast
                     return;
                 }
                 if (EventType == BuildingEventIntervalType.Query)
+                {
+                    BuildingType = timer.BuildingType;
                     EventType = timer.EventType;
+                }
                 if (EventType == BuildingEventIntervalType.Raze)
                 {
                     // Building raze is immediate (invoked by RTS' own player)
@@ -79,7 +84,8 @@ namespace Fcast
                     {
                         Time = now,
                         Interval = TimeSpan.FromSeconds(Seconds),
-                        EventType = EventType
+                        EventType = EventType,
+                        BuildingType = BuildingType
                     });
                     Check = true;  // can build here
                     return;
