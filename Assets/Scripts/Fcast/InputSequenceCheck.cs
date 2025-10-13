@@ -77,10 +77,27 @@ namespace Fcast
             }
             if (expectBuildingKey)
             {
+                char key = (char)0;
                 var keyDownP = Input.GetKeyDown(KeyCode.P);
+                bool keyDownM = false; bool keyDownG = false;
+
                 if (keyDownP)
                 { // priestess
-                    var key = 'p';
+                    key = 'p';
+                }
+                else if (Input.GetKeyDown(KeyCode.M))
+                {
+                    keyDownM = true;
+                    key = 'm';
+                }
+                else if (Input.GetKeyDown(KeyCode.G))
+                {
+                    keyDownG = true;
+                    key = 'g';
+                }
+
+                if (keyDownP || keyDownM || keyDownG)
+                {
                     _runningSequence[1] = key;
                     _lastKeyPressed = key;
                     // a BUILD must happen, so must return early with Check = true

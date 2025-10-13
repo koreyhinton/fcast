@@ -64,6 +64,16 @@ namespace Fcast
                                 prefabName = "Prefabs/PriestessView"; // priestess
                                 Counts['p']++;
                             }
+                            if (buildingChoice == 'g')
+                            {
+                                prefabName = "Prefabs/GoldmineView";
+                                Counts['g']++;
+                            }
+                            if (buildingChoice == 'm')
+                            {
+                                prefabName = "Prefabs/MinerView";
+                                Counts['m']++;
+                            }
                             var prefab = Resources.Load<GameObject>(prefabName);
                             UnityEngine.Object.Instantiate(
                                 prefab,
@@ -106,6 +116,8 @@ namespace Fcast
         {
             Counts['t'] = 0;
             Counts['p'] = 0;
+            Counts['m'] = 0;
+            Counts['g'] = 0;
             //_textures = Resources.LoadAll<GameObject>("Prefabs/BuildingView");
         }
     }

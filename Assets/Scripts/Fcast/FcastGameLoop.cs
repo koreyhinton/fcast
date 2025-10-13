@@ -1,7 +1,15 @@
-using System.Collections.Generic; using System.Linq; using UnityEngine; namespace Fcast { public static class FcastGameLoop { private static int _i = 0; public static void It(FcastGameData g) {
+using System.Collections.Generic; using System.Linq; using UnityEngine; namespace Fcast { public static class FcastGameLoop { private static bool _once = false; private static int _i = 0; public static void It(FcastGameData g) {
     var angles = new System.Collections.Generic.List<float>();
     angles.Add(-25f);
     angles.Add(25f);
+
+    Dictionary<char, int> costTable = new Dictionary<char, int>()
+    {
+        {'g', 100}, //goldmine
+        {'m', 10},  //(gold)miner
+        {'t', 200}, //temple
+        {'p', 50}   //priestess
+    };
     // var spriteTransform = g.Player?.GetComponentInChildren<SpriteRenderer>()?.transform;
     var player = g.Mages.FirstOrDefault();
     GameObject playerView = null;
@@ -33,14 +41,18 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     if (playerView != null && g.Type == GameType.Rts)
         playerLoaded = true;
 
+    if (g.Type == GameType.Rts && !_once)
+    {
+        g.MageResources[ResourceType.Gold].Amount = 800;
+        _once = true;
+    }
     if (g.Type == GameType.Rts)
     {
-        g.GoldMineIntervalCheck.Miners = 1;
         g.GoldMineIntervalCheck.Exec();
     }
     if (g.GoldMineIntervalCheck)
     {
-        g.MageResources[ResourceType.Gold].Amount += 1;
+        g.MageResources[ResourceType.Gold].Amount += (1 * g.GoldMineIntervalCheck.Miners);
         // Debug.Log("Gold: " + g.MageResources[ResourceType.Gold].Amount);
     }
 
@@ -100,10 +112,10 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     if (aimedAndBuilt && g.InputSequenceCheck.BuildingChoice == 't')
     {
         buildingX -= 1; //temple buildings are wide, -1 to center it
-        g.MageResources[ResourceType.Gold].Amount -= 200;
+        g.MageResources[ResourceType.Gold].Amount -= costTable['t'];
         Debug.Log("Bought Temple, remaining gold: " + g.MageResources[ResourceType.Gold].Amount);
     }
-    if (aimedAndBuilt && g.InputSequenceCheck.BuildingChoice != 'p')
+    if (aimedAndBuilt && g.InputSequenceCheck.BuildingChoice != 'p' && g.InputSequenceCheck.BuildingChoice != 'm' && g.InputSequenceCheck.BuildingChoice != 'g')
     {
         Debug.Log("building " + g.InputSequenceCheck.BuildingChoice + " at: " + buildingX + "," + buildingY);
         g.BuildingEventIntervalCheck.X = buildingX;
@@ -113,7 +125,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         g.BuildingEventIntervalCheck.Seconds = 0;
         g.BuildingEventIntervalCheck.Exec();
     }
-    if (aimedAndBuilt && g.InputSequenceCheck.BuildingChoice != 'p' && g.BuildingEventIntervalCheck)
+    if (aimedAndBuilt && g.InputSequenceCheck.BuildingChoice != 'p' && g.InputSequenceCheck.BuildingChoice != 'm' && g.InputSequenceCheck.BuildingChoice != 'g' && g.BuildingEventIntervalCheck)
     {
         aimWillConstructBuilding = true;
         g.BuildingUpdateViewsCheck.AddQueryX = buildingX;
@@ -121,9 +133,21 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         addBuildingQuery = true;
     }
 
+    if (aimedAndBuilt && !aimWillConstructBuilding && g.InputSequenceCheck.BuildingChoice == 'g')
+        g.MageResources[ResourceType.Gold].Amount -= costTable['g'];
+    if (aimedAndBuilt && !aimWillConstructBuilding && g.InputSequenceCheck.BuildingChoice == 'm')
+        g.MageResources[ResourceType.Gold].Amount -= costTable['m'];
+    if (aimedAndBuilt && !aimWillConstructBuilding && (
+            g.InputSequenceCheck.BuildingChoice == 'g' || (g.BuildingUpdateViewsCheck.Counts['g'] > 0 && g.InputSequenceCheck.BuildingChoice == 'm')))
+    {
+        g.GoldMineIntervalCheck.Miners = g.BuildingUpdateViewsCheck.Counts['m'];
+        aimWillTryBakeUnit = true;
+    }
+
     if (aimedAndBuilt && !aimWillConstructBuilding && g.BuildingUpdateViewsCheck.Counts['t'] > 0 && g.InputSequenceCheck.BuildingChoice == 'p')
     {
         // priestess (only build if there's a temple)
+        g.MageResources[ResourceType.Gold].Amount -= costTable['p'];
         aimWillTryBakeUnit = true;
     }
     if (aimWillTryBakeUnit)
@@ -132,7 +156,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         g.BuildingEventIntervalCheck.X = buildingX;
         g.BuildingEventIntervalCheck.Y = buildingY;
         g.BuildingEventIntervalCheck.Seconds = 0;
-        g.BuildingEventIntervalCheck.BuildingType = 'p';
+        g.BuildingEventIntervalCheck.BuildingType = g.InputSequenceCheck.BuildingChoice;
         g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Construct;
         g.BuildingEventIntervalCheck.Exec(); // once for construct
         addBuildingQuery = true;
