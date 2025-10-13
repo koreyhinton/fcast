@@ -23,21 +23,32 @@ This means:
 Aim and end aim (ESC):
 
 ```
-a <ARROWS> ESC
+a <ARROW_KEYS> ESC
+```
+
+Aim and build a **g**oldmine:
+
+```
+a <ARROW_KEYS> g ESC
+```
+
+Aim and build a **g**oldmine and then a (gold)**m**iner:
+
+```
+a <ARROW_KEYS> g <ARROW_KEYS> m ESC
 ```
 
 Aim and build a **t**emple:
 
 ```
-a <ARROWS> t ESC
+a <ARROW_KEYS> t ESC
 ```
 
 Aim and build a temple and a **p**riestess:
 
 ```
-a <ARROWS> t <ARROWS> p ESC
+a <ARROW_KEYS> t <ARROW_KEYS> p ESC
 ```
-
 
 ## Linux development exceptions
 
@@ -49,11 +60,10 @@ a <ARROWS> t <ARROWS> p ESC
 
 2. The editor and projects are large, and if you forgot to reformat an exFAT external volume first, then files will be incorrectly permissioned in git.
 
-    All you can do is disable fileMode for git-tracked files and be cautious in adding newly tracked files:
+    All you can do is disable fileMode for git-tracked files (and newly tracked files will have to have execute permission):
 
     ```
     git config core.fileMode false
-    chmod -x newcodefile.cs && git add newcodefile.cs
     ```
 
 ## Manifest
@@ -78,7 +88,16 @@ a <ARROWS> t <ARROWS> p ESC
 
 # witcher entity
 ./Assets/GameAssets/Entities/EntityRecipees/Actors/Player.asset # (see _sprites)
+
+# spritesheets
+./Assets/Sprites/Spritesheets/DungeonTilesetCalciumtrice/dungeon tileset calciumtrice.png.meta
 ./Assets/Sprites/Spritesheets/Witcher tileset/Witcher tileset.png.meta
+
+# prefabs
+./Assets/Resources/Prefabs/GoldmineView.prefab.meta
+./Assets/Resources/Prefabs/MinerView.prefab.meta
+./Assets/Resources/Prefabs/BuildingView.prefab.meta
+./Assets/Resources/Prefabs/PriestessView.prefab.meta
 
 # Entitas-generated properties (partial to GameEntity)
 ./Assets/Scripts/Generated/Game/Components/Game{View,Held,etc}Component.cs
