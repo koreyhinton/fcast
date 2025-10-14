@@ -1,8 +1,24 @@
+// START OF LITERATE PROGRAM FILE
+// Wik-mode can be used in emacs to expand/collapse sections*.
+//     Alt-Shift-* (collapse all)
+//     Alt-Shift-o (toggle current section open/closed)
+//     Alt-Shift-n (next section header)
+//     Alt-Shift-p (previous section header)
+//     Alt-Shift-RIGHT_ARROW (preview file path with path marker prefix**)
+//     Alt-Shift-LEFT_ARROW (close preview file path with path marker prefix**)
+//     Alt-Shift-DOWN_ARROW (open file path for editing in new buffer frame)
+//     Alt-Shift-UP_ARROW (close newly opened buffer frame)
+// * sections start with ALL-CAPS comment (which is the section header line)
+// ** path marker prefix: ./ or ../
+
 using System.Collections.Generic; using System.Linq; using UnityEngine; namespace Fcast { public static class FcastGameLoop { private static bool _once = false; private static int _i = 0; public static void It(FcastGameData g) {
+
+    // START OF GAME LOOP ITERATION - VARIABLE RESETS
+    // called from ../../Osnowa/Osnowa.Core/TurnManager.cs
+    // var resets
     var angles = new System.Collections.Generic.List<float>();
     angles.Add(-25f);
     angles.Add(25f);
-
     Dictionary<char, int> costTable = new Dictionary<char, int>()
     {
         {'g', 100}, //goldmine
@@ -10,72 +26,82 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         {'t', 200}, //temple
         {'p', 50}   //priestess
     };
-    // var spriteTransform = g.Player?.GetComponentInChildren<SpriteRenderer>()?.transform;
     var player = g.Mages.FirstOrDefault();
     GameObject playerView = null;
-
     bool playerLoaded = false;
     bool playerBounce = false;
     bool aimedAndBuilt = false; // todo: handle more key bindings for building types (for now just using builtin ESC)
+    bool aimWillConstructBuilding = false;
+    bool aimWillTryBakeUnit = false;
+    int buildingX = -1;
+    int buildingY = -1;
+    bool addBuildingQuery = false;
 
+    // ONE-TIME ONLY LOGIC
     if (g.MageResources == null)
     {
-        
         g.MageResources = new Dictionary<ResourceType, Resource>();
         var gold = new Resource() { Type = ResourceType.Gold };
         var ore = new Resource() { Type = ResourceType.Ore };
         var timber = new Resource() { Type = ResourceType.Timber };
-        
         g.MageResources.Add(ResourceType.Gold, gold);
         g.MageResources.Add(ResourceType.Ore, ore);
         g.MageResources.Add(ResourceType.Timber, timber);
-        /*{
-            { ResourceType.Gold, new Resource() { Type = ResourceType.Gold } },
-            { ResourceType.Ore, new Resource() { Type = ResourceType.Ore } },
-            { ResourceType.Timber, new Resource() { Type = ResourceType.Timber } },
-        };*/
     }
-
-    if (player != null)
-        playerView = ((Osnowa.Osnowa.Unity.EntityViewBehaviour)player.view.Controller).gameObject;
-    if (playerView != null && g.Type == GameType.Rts)
-        playerLoaded = true;
-
-    if (g.Type == GameType.Rts && !_once)
+    if (!_once)
     {
         g.MageResources[ResourceType.Gold].Amount = 800;
         _once = true;
     }
-    if (g.Type == GameType.Rts)
-    {
-        g.GoldMineIntervalCheck.Exec();
-    }
-    if (g.GoldMineIntervalCheck)
-    {
-        g.MageResources[ResourceType.Gold].Amount += (1 * g.GoldMineIntervalCheck.Miners);
-        // Debug.Log("Gold: " + g.MageResources[ResourceType.Gold].Amount);
-    }
 
-    if (g.Type == GameType.Rts)
+    // WAIT-FOR-LOAD SET VARS
+    if (player != null)
+        playerView = ((Osnowa.Osnowa.Unity.EntityViewBehaviour)player.view.Controller).gameObject;
+    if (playerView != null)
+        playerLoaded = true;
+
+    // TODO: SECOND PLAYER LOGIC
+    // if (g.Type == GameType.Rtt)
+    //     2nd player RTT logic
+    // else
+    //     1 player RTS-only game
+
+    // RESOURCE COLLECTION INTERVAL CHECKS
+    if (playerLoaded)
     {
         var location1 = new TimberCheckLocation() { X = 0, Y = 0 };
         var location2 = new TimberCheckLocation() { X = 1, Y = 0 };
         var location3 = new TimberCheckLocation() { X = 2, Y = 0 };
-
         g.TimberChopIntervalCheck.ChopperLocations = new List<TimberCheckLocation>() { location1, location2, location3 };
         g.TimberChopIntervalCheck.TreeLocations = new List<TimberCheckLocation>() { location1, location2 };
+
         g.TimberChopIntervalCheck.Exec();
+        g.GoldMineIntervalCheck.Exec();
     }
-    if (g.TimberChopIntervalCheck)
+    if (playerLoaded && g.GoldMineIntervalCheck)
+    {
+        g.MageResources[ResourceType.Gold].Amount += (1 * g.GoldMineIntervalCheck.Miners);
+        // Debug.Log("Gold: " + g.MageResources[ResourceType.Gold].Amount);
+    }
+    if (playerLoaded && g.TimberChopIntervalCheck)
     {
         g.MageResources[ResourceType.Timber].Amount += g.TimberChopIntervalCheck.ChopOutput;
         // Debug.Log("trees: " + g.MageResources[ResourceType.Timber].Amount);
     }
 
+    // KEYBOARD INPUT SEQUENCE CHECK
     if (playerLoaded)
     {
         g.InputSequenceCheck.Exec();
+    }
+    if (playerLoaded && g.InputSequenceCheck)
+    {
+        aimedAndBuilt = true;
+    }
 
+    // PLAYER ANIMATION INTERVAL
+    if (!g.Over && playerLoaded)
+    {
         g.EventIntervalCheck.Type = EventIntervalCheckType.PlayerBounce;
         g.EventIntervalCheck.Exec();
     }
@@ -92,16 +118,8 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         // e.z = angles[_i];
         //spriteTransform.localEulerAngles = new Vector3(0, 0, angles[_i]); //e;
     }
-    if (g.InputSequenceCheck)
-    {
-        aimedAndBuilt = true;
-    }
 
-    bool aimWillConstructBuilding = false;
-    bool aimWillTryBakeUnit = false;
-    int buildingX = -1;
-    int buildingY = -1;
-    bool addBuildingQuery = false;
+    // AIM AND BUILD
     if (aimedAndBuilt)
     {
         var playerX = (int)playerView.transform.position.x; //(int)(playerView.Position.X);
