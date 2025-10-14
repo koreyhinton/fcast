@@ -90,7 +90,7 @@
             }
             _gameData.Over = false;
             _gameData.Tick = tick;
-            _gameData.Type = Fcast.GameType.Rts;
+            _gameData.Type = Fcast.GameType.FirstPlayerRtsSecondPlayerRtt; // todo: get this based on UI 2-player checkbox instead
             FcastGameLoop.It(_gameData);
 
             bool needsInput = _gameContext.isWaitingForInput && (_gameContext.playerDecision.Decision == Decision.None);

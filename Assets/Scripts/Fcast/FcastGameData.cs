@@ -4,8 +4,8 @@ namespace Fcast
 {
     public enum GameType
     {
-        Rtt,
-        Rts
+        FirstPlayerRtsSecondPlayerRtt,
+        SinglePlayerRts
     }
     public enum ResourceType
     {
