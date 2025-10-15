@@ -69,6 +69,12 @@ a <ARROW_KEYS> t <ARROW_KEYS> p ESC
 ## Manifest
 
 ```
+# Zenject injection example (inject IGrid)
+#     Just added IGrid to constructor and private field:
+./Assets/Osnowa/Osnowa.Core/TurnManager.cs
+#     Pre-existing inject attribute for ITurnManager:
+# ./Assets/Scripts/TurnManagerBehaviour.cs
+
 # hook to call imperative game loop iteration (FcastGameLoop.It())
 ./Assets/Osnowa/Osnowa.Core/TurnManager.cs
 

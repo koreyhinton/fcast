@@ -1,3 +1,4 @@
+using Osnowa.Osnowa.Grid;
 using UnityEngine;
 using System.Collections.Generic;
 namespace Fcast
@@ -34,5 +35,6 @@ namespace Fcast
         public BuildingEventIntervalCheck BuildingEventIntervalCheck { get; set; } = new BuildingEventIntervalCheck();
         public BuildingUpdateViewsCheck BuildingUpdateViewsCheck { get; set; } = new BuildingUpdateViewsCheck();
         public InputSequenceCheck InputSequenceCheck { get; set; } = new InputSequenceCheck();
+        public IGrid Grid { get; set; }
     }
 }
