@@ -119,14 +119,35 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         //spriteTransform.localEulerAngles = new Vector3(0, 0, angles[_i]); //e;
     }
 
-    // AIM AND BUILD
+    // REJECT BUILD FOR LACK OF RESOURCE REASON
+    if (
+        aimedAndBuilt &&
+        costTable[g.InputSequenceCheck.BuildingChoice]
+        > g.MageResources[ResourceType.Gold].Amount
+    )
+    {
+        aimedAndBuilt = false;
+    }
+
+    // REJECT BUILD FOR NOT WALKABLE REASON
+    // see ../GameLogic/ActionLoop/Actions/JustMoveAction.cs
+    //         if (_grid.IsWalkable(position))
     if (aimedAndBuilt)
     {
         var playerX = (int)playerView.transform.position.x; //(int)(playerView.Position.X);
         var playerY = (int)playerView.transform.position.y; //(int)(playerView.Position.Y);
         buildingX = playerX + g.InputSequenceCheck.Offset.X;
-        buildingY = playerY + g.InputSequenceCheck.Offset.Y;        
+        buildingY = playerY + g.InputSequenceCheck.Offset.Y;
     }
+    if (
+        aimedAndBuilt &&
+        !g.Grid.IsWalkable(new Osnowa.Osnowa.Core.Position(buildingX, buildingY))
+    )
+    {
+        aimedAndBuilt = false;
+    }
+
+    // AIM AND BUILD
     if (aimedAndBuilt && g.InputSequenceCheck.BuildingChoice == 't')
     {
         buildingX -= 1; //temple buildings are wide, -1 to center it

@@ -10,6 +10,7 @@
     using GameLogic.GameCore;
     using global::Osnowa.Osnowa.Example.ECS;
     using Debug = UnityEngine.Debug;
+    using Osnowa.Grid; //using GameLogic.AI.Navigation;
 
     public class TurnManager : ITurnManager
     {
@@ -31,17 +32,19 @@
         private IGroup<GameEntity> _energyReadyEntities;
         private IGroup<GameEntity> _entitiesWithEnergy;
         private FcastGameData _gameData = new FcastGameData();
+        private IGrid _grid; // private INavigator _navigator;
 
         private IOsnowaContextManager _contextManager;
 
         public TurnManager(IWorldClock worldClock, 
             PerInitiativeFeature perInitiativeFeature, RealTimeFeature realTimeFeature,
-            IOsnowaContextManager contextManager)
+            IOsnowaContextManager contextManager, /*INavigator navigator*/ IGrid grid)
         {
             _worldClock = worldClock;
             _perInitiativeFeature = perInitiativeFeature;
             _realTimeFeature = realTimeFeature;
             _contextManager = contextManager;
+            _grid = grid; // _navigator = navigator;
         }
 
         public void OnGameStart()
@@ -88,6 +91,8 @@
                 _time = DateTime.UtcNow;
                 tick = true;
             }
+            if (_gameData.Grid == null)
+                _gameData.Grid = _grid;
             _gameData.Over = false;
             _gameData.Tick = tick;
             _gameData.Type = Fcast.GameType.FirstPlayerRtsSecondPlayerRtt; // todo: get this based on UI 2-player checkbox instead
