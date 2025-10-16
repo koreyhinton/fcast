@@ -120,39 +120,39 @@
 
 		private Position ReadDirection()
 		{
-			if (_inputWithRepeating.KeyDownOrRepeating(KeyCode.Keypad1) || _inputWithRepeating.KeyDownOrRepeating(KeyCode.M))
+			if (_inputWithRepeating.KeyDown(KeyCode.Keypad1))
 			{
 				return new Position(-1, -1);
 			}
-			if (_inputWithRepeating.KeyDownOrRepeating(KeyCode.Keypad2) || _inputWithRepeating.KeyDownOrRepeating(KeyCode.Comma) || _inputWithRepeating.KeyDownOrRepeating(KeyCode.DownArrow))
+			if (_inputWithRepeating.KeyDown(KeyCode.Keypad2) || _inputWithRepeating.KeyDown(KeyCode.DownArrow))
 			{
 				return new Position(0, -1);
 			}
-			if (_inputWithRepeating.KeyDownOrRepeating(KeyCode.Keypad3) || _inputWithRepeating.KeyDownOrRepeating(KeyCode.Period))
+			if (_inputWithRepeating.KeyDown(KeyCode.Keypad3))
 			{
 				return new Position(1, -1);
 			}
-			if (_inputWithRepeating.KeyDownOrRepeating(KeyCode.Keypad4) || _inputWithRepeating.KeyDownOrRepeating(KeyCode.J) || _inputWithRepeating.KeyDownOrRepeating(KeyCode.LeftArrow))
+			if (_inputWithRepeating.KeyDown(KeyCode.Keypad4) || _inputWithRepeating.KeyDown(KeyCode.LeftArrow))
 			{
 				return new Position(-1, 0);
 			}
-			if (_inputWithRepeating.KeyDownOrRepeating(KeyCode.Keypad6) || _inputWithRepeating.KeyDownOrRepeating(KeyCode.L) || _inputWithRepeating.KeyDownOrRepeating(KeyCode.RightArrow))
+			if (_inputWithRepeating.KeyDown(KeyCode.Keypad6) || _inputWithRepeating.KeyDown(KeyCode.RightArrow))
 			{
 				return new Position(1, 0);
 			}
-			if (_inputWithRepeating.KeyDownOrRepeating(KeyCode.Keypad7) || _inputWithRepeating.KeyDownOrRepeating(KeyCode.U))
+			if (_inputWithRepeating.KeyDown(KeyCode.Keypad7))
 			{
 				return new Position(-1, 1);
 			}
-			if (_inputWithRepeating.KeyDownOrRepeating(KeyCode.Keypad8) || _inputWithRepeating.KeyDownOrRepeating(KeyCode.I) || _inputWithRepeating.KeyDownOrRepeating(KeyCode.UpArrow))
+			if (_inputWithRepeating.KeyDown(KeyCode.Keypad8) || _inputWithRepeating.KeyDown(KeyCode.UpArrow))
 			{
 				return new Position(0, 1);
 			}
-			if (_inputWithRepeating.KeyDownOrRepeating(KeyCode.Keypad9) || _inputWithRepeating.KeyDownOrRepeating(KeyCode.O))
+			if (_inputWithRepeating.KeyDown(KeyCode.Keypad9))
 			{
 				return new Position(1, 1);
 			}
-			if (_inputWithRepeating.KeyDownOrRepeating(KeyCode.Escape))
+			if (_inputWithRepeating.KeyDown(KeyCode.Escape))
 			{
 				return Position.MinValue;
 			}

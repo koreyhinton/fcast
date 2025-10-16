@@ -13,6 +13,11 @@
 		bool KeyDownOrRepeating(KeyCode keyCode);
 
 		/// <summary>
+		/// Returns true if the button just got pressed
+		/// </summary>
+		bool KeyDown(KeyCode keyCode);
+
+		/// <summary>
 		/// If the button is pressed — returns true and updates the time of holding the button.
 		/// </summary>
 		bool GetAndUpdateKey(KeyCode keyCode);

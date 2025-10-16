@@ -10,8 +10,6 @@ namespace Fcast
         public XY Offset = new XY() { X = 0, Y = 0 };
 
         private char[] _runningSequence = new char[3] { (char)0, (char)0, (char)0 };
-
-        private const int GridSize = 1; // 32
         private char _lastKeyPressed = (char)0;
 
         private void _resetBuild()
@@ -44,18 +42,44 @@ namespace Fcast
                 _runningSequence[2] == (char)0;
             if (expectOffsetKeyDown)
             {
-                var keyDownUp = Input.GetKeyDown(KeyCode.UpArrow);
-                var keyDownDown = Input.GetKeyDown(KeyCode.DownArrow);
-                var keyDownLeft = Input.GetKeyDown(KeyCode.LeftArrow);
-                var keyDownRight = Input.GetKeyDown(KeyCode.RightArrow);
+                bool keyDownUp = false;
+                bool keyDownDown = false;
+                bool keyDownLeft = false;
+                bool keyDownRight = false;
+                {
+                    bool keypad7 = Input.GetKeyDown(KeyCode.Keypad7);
+                    bool keypad9 = Input.GetKeyDown(KeyCode.Keypad9);
+                    bool keypad1 = Input.GetKeyDown(KeyCode.Keypad1);
+                    bool keypad3 = Input.GetKeyDown(KeyCode.Keypad3);
+                    keyDownUp = Input.GetKeyDown(KeyCode.UpArrow)
+                        || keypad7
+                        || Input.GetKeyDown(KeyCode.Keypad8)
+                        || keypad9
+                    ;
+                    keyDownDown = Input.GetKeyDown(KeyCode.DownArrow)
+                        || keypad1
+                        || Input.GetKeyDown(KeyCode.Keypad2)
+                        || keypad3
+                    ;
+                    keyDownLeft = Input.GetKeyDown(KeyCode.LeftArrow)
+                        || keypad7
+                        || Input.GetKeyDown(KeyCode.Keypad4)
+                        || keypad1
+                    ;
+                    keyDownRight = Input.GetKeyDown(KeyCode.RightArrow)
+                        || keypad9
+                        || Input.GetKeyDown(KeyCode.Keypad6)
+                        || keypad3
+                    ;
+                }
                 if (keyDownDown)
-                    Offset.Y -= 1*GridSize;
+                    Offset.Y -= 1; // 1 grid unit movement
                 if (keyDownUp)
-                    Offset.Y += 1*GridSize;
+                    Offset.Y += 1;
                 if (keyDownLeft)
-                    Offset.X -= 1*GridSize;
+                    Offset.X -= 1;
                 if (keyDownRight)
-                    Offset.X += 1*GridSize;
+                    Offset.X += 1;
                 if (keyDownUp || keyDownLeft || keyDownRight || keyDownDown)
                     _lastKeyPressed = (char)1;
             }
