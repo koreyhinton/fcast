@@ -35,6 +35,7 @@ namespace Fcast
         public BuildingEventIntervalCheck BuildingEventIntervalCheck { get; set; } = new BuildingEventIntervalCheck();
         public BuildingUpdateViewsCheck BuildingUpdateViewsCheck { get; set; } = new BuildingUpdateViewsCheck();
         public InputSequenceCheck InputSequenceCheck { get; set; } = new InputSequenceCheck();
+        public DiffLog DiffLog { get; set; } = new DiffLog();
         public IGrid Grid { get; set; }
     }
 }

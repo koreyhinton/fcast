@@ -35,6 +35,8 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     bool aimWillTryBakeUnit = false;
     int buildingX = -1;
     int buildingY = -1;
+    int playerX = -1;
+    int playerY = -1;
     bool addBuildingQuery = false;
 
     // ONE-TIME ONLY LOGIC
@@ -59,6 +61,11 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         playerView = ((Osnowa.Osnowa.Unity.EntityViewBehaviour)player.view.Controller).gameObject;
     if (playerView != null)
         playerLoaded = true;
+    if (playerLoaded)
+    {
+        playerX = (int)playerView.transform.position.x; //(int)(playerView.Position.X);
+        playerY = (int)playerView.transform.position.y; //(int)(playerView.Position.Y);
+    }
 
     // TODO: SECOND PLAYER LOGIC
     // if (g.Type == GameType.Rtt)
@@ -102,6 +109,10 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     // PLAYER ANIMATION INTERVAL
     if (!g.Over && playerLoaded)
     {
+        g.DiffLog.Action = LogAction.Write;
+        g.DiffLog.Key = "playerXY";
+        g.DiffLog.Value = "(" + playerX + "," + playerY + ")";
+        g.DiffLog.Exec();
         g.EventIntervalCheck.Type = EventIntervalCheckType.PlayerBounce;
         g.EventIntervalCheck.Exec();
     }
@@ -134,8 +145,6 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     //         if (_grid.IsWalkable(position))
     if (aimedAndBuilt)
     {
-        var playerX = (int)playerView.transform.position.x; //(int)(playerView.Position.X);
-        var playerY = (int)playerView.transform.position.y; //(int)(playerView.Position.Y);
         buildingX = playerX + g.InputSequenceCheck.Offset.X;
         buildingY = playerY + g.InputSequenceCheck.Offset.Y;
     }
@@ -152,11 +161,11 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     {
         buildingX -= 1; //temple buildings are wide, -1 to center it
         g.MageResources[ResourceType.Gold].Amount -= costTable['t'];
-        Debug.Log("Bought Temple, remaining gold: " + g.MageResources[ResourceType.Gold].Amount);
+        // Debug.Log("Bought Temple, remaining gold: " + g.MageResources[ResourceType.Gold].Amount);
     }
     if (aimedAndBuilt && g.InputSequenceCheck.BuildingChoice != 'p' && g.InputSequenceCheck.BuildingChoice != 'm' && g.InputSequenceCheck.BuildingChoice != 'g')
     {
-        Debug.Log("building " + g.InputSequenceCheck.BuildingChoice + " at: " + buildingX + "," + buildingY);
+        // Debug.Log("building " + g.InputSequenceCheck.BuildingChoice + " at: " + buildingX + "," + buildingY);
         g.BuildingEventIntervalCheck.X = buildingX;
         g.BuildingEventIntervalCheck.Y = buildingY;
         g.BuildingEventIntervalCheck.BuildingType = g.InputSequenceCheck.BuildingChoice;
@@ -191,7 +200,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     }
     if (aimWillTryBakeUnit)
     {
-        Debug.Log("Prepare to bake");
+        // Debug.Log("Prepare to bake");
         g.BuildingEventIntervalCheck.X = buildingX;
         g.BuildingEventIntervalCheck.Y = buildingY;
         g.BuildingEventIntervalCheck.Seconds = 0;
@@ -221,7 +230,10 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     }
     if (addBuildingQuery)
     {
-        Debug.Log("building query");
+        g.DiffLog.Action = LogAction.Write;
+        g.DiffLog.Key = "buildingchoice_xy";
+        g.DiffLog.Value = g.InputSequenceCheck.BuildingChoice + "_("+buildingX+","+buildingY+")";
+        g.DiffLog.Exec();
         g.BuildingUpdateViewsCheck.AddQueryX = buildingX;
         g.BuildingUpdateViewsCheck.AddQueryY = buildingY;
     }
@@ -235,6 +247,11 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         // Debug.Log("Building Views updated");
     }
 
+    // END OF LOOP ITERATION - FLUSH LOG
+    {
+        g.DiffLog.Action = LogAction.Flush;
+        g.DiffLog.Exec();
+    }
 
 
 }}}

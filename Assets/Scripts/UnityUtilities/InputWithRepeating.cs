@@ -20,6 +20,11 @@
 			return Input.GetKeyDown(keyCode) || GetAndUpdateKey(keyCode);
 		}
 
+		public bool KeyDown(KeyCode keyCode)
+		{
+			return Input.GetKeyDown(keyCode);
+		}
+
 		public bool GetAndUpdateKey(KeyCode keyCode)
 		{
 			if (Input.GetKey(keyCode))

@@ -88,6 +88,7 @@ a <ARROW_KEYS> t <ARROW_KEYS> p ESC
 ./Assets/Scripts/Fcast/BuildingUpdateViewsCheck.cs
 ./Assets/Scripts/Fcast/ExecCheck.cs
 ./Assets/Scripts/Fcast/IExec.cs
+./Assets/Scripts/Fcast/DiffLog.cs
 
 # game data
 ./Assets/Scripts/Fcast/FcastGameData.cs
@@ -117,4 +118,12 @@ a <ARROW_KEYS> t <ARROW_KEYS> p ESC
 # Graceful null handling added to allow imperative building views:
 ./Assets/Osnowa/Osnowa.Grid/EntityPresenter.cs      # GetVisibleEntities()
 ./Assets/Osnowa/Osnowa.Unity/UnityEntityDetector.cs # FilterEntities()
+
+# independent (A&B) aim tracking key input systems (roughly kept in-sync)
+#     A. aim-positioner rendering graphics
+./Assets/Scripts/GameLogic/GameCore/DirectionInputReader.cs
+./Assets/Scripts/UnityUtilities/InputWithRepeating.cs
+#     B. building placement (tracked while aiming)
+./Assets/Scripts/Fcast/InputSequenceCheck.cs
+
 ```
