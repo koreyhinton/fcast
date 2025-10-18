@@ -34,7 +34,8 @@ namespace Fcast
         public Dictionary<ResourceType, Resource> MageResources { get; set; }
         public BuildingEventIntervalCheck BuildingEventIntervalCheck { get; set; } = new BuildingEventIntervalCheck();
         public BuildingUpdateViewsCheck BuildingUpdateViewsCheck { get; set; } = new BuildingUpdateViewsCheck();
-        public InputSequenceCheck InputSequenceCheck { get; set; } = new InputSequenceCheck();
+        public BuildingPreviewUpdater BuildingPreviewUpdater { get; set; } = new BuildingPreviewUpdater();
+        public InputBuildSequenceCheck InputBuildSequenceCheck { get; set; } = new InputBuildSequenceCheck();
         public DiffLog DiffLog { get; set; } = new DiffLog();
         public IGrid Grid { get; set; }
     }

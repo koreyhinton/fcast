@@ -4,13 +4,28 @@ using System.Linq;
 using UnityEngine;
 namespace Fcast
 {
-    public class InputSequenceCheck : ExecCheck
+    public class InputBuildSequenceCheck : ExecCheck
     {
         public char BuildingChoice = (char)0; // t -> temple
+        public char PendingBuildingChoice = (char)0;
         public XY Offset = new XY() { X = 0, Y = 0 };
 
+        // Running Sequence: a => to aim
+        //                   build char => to show transparent building*
+        //                   same build char again => starts the build
+        //  * doesn not affect _runningSequence
         private char[] _runningSequence = new char[3] { (char)0, (char)0, (char)0 };
-        private char _lastKeyPressed = (char)0;
+
+        // Which key presses will affect _runningSequence and
+        // _lastSequenceKeyPressed?
+        //
+        // The first time pressing a building choice only gets counted as a 
+        // sequence key press if PendingBuildingChoice was already set to that 
+        // same key. Examples:
+        //     (1) by default ['t'] temple appears when aiming
+        //     (2) changing from ['t] to ['p'] priestess affects pending 
+        //         build choice, you have to hit 'p' again to lock in that unit
+        private char _lastSequenceKeyPressed = (char)0;
 
         private void _resetBuild()
         {
@@ -19,8 +34,50 @@ namespace Fcast
             _runningSequence[0] = (char)0;
             _runningSequence[1] = (char)0;
             _runningSequence[2] = (char)0;
-            _lastKeyPressed = (char)0;
+            _lastSequenceKeyPressed = (char)0;
             BuildingChoice = (char)0;
+            PendingBuildingChoice = (char)0;
+        }
+
+        private bool ResolveBuildingKey(char key, KeyCode keyCode)
+        {
+            // The _lastSequenceKeyPressed != key checks are to make
+            // sure you don't build in the same position repeatedly
+            // (arrow keys in between will set _lastSequenceKeyPressed to
+            // char 1)
+
+            var keyDownCheck = Input.GetKeyDown(keyCode);
+            if (keyDownCheck && _lastSequenceKeyPressed != key)
+            {
+                if (PendingBuildingChoice == key)
+                {
+                    _runningSequence[1] = key;
+                    _lastSequenceKeyPressed = key;
+                    // a BUILD must happen, so must return early with Check = true
+                    PendingBuildingChoice = (char)0;
+                    BuildingChoice = key;
+                }
+                else
+                {
+                    PendingBuildingChoice = key;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        private bool ResolveBuildingKey()
+        {
+            // t=>temple, p=>priestess, g=>goldmine, m=>(gold)miner
+            if (ResolveBuildingKey('t', KeyCode.T))
+                return true;
+            if (ResolveBuildingKey('p', KeyCode.P))
+                return true;
+            if (ResolveBuildingKey('m', KeyCode.M))
+                return true;
+            if (ResolveBuildingKey('g', KeyCode.G))
+                return true;
+            return false;
         }
 
         public override void Exec()
@@ -32,7 +89,8 @@ namespace Fcast
             {
                 var key = 'a';
                 _runningSequence[0] = key;
-                _lastKeyPressed = key;
+                _lastSequenceKeyPressed = key;
+                PendingBuildingChoice = 't';
             }
 
             // SEQUENCE STEP 2 (OPTIONAL & REPEATABLE) - AIM AND BUILD
@@ -81,54 +139,15 @@ namespace Fcast
                 if (keyDownRight)
                     Offset.X += 1;
                 if (keyDownUp || keyDownLeft || keyDownRight || keyDownDown)
-                    _lastKeyPressed = (char)1;
+                    _lastSequenceKeyPressed = (char)1;
             }
             var expectBuildingKey = _runningSequence[0] == 'a' &&
                 _runningSequence[2] == (char)0;
-            if (expectBuildingKey && _lastKeyPressed != 't')//can't build at same position
-            {
-                var keyDownT = Input.GetKeyDown(KeyCode.T);
-                if (keyDownT)
-                {
-                    var key = 't';
-                    _runningSequence[1] = key;
-                    _lastKeyPressed = key;
-                    // a BUILD must happen, so must return early with Check = true
-                    BuildingChoice = key;
-                    Check = true;
-                    return;
-                }
-            }
-            if (expectBuildingKey)
-            {
-                char key = (char)0;
-                var keyDownP = Input.GetKeyDown(KeyCode.P);
-                bool keyDownM = false; bool keyDownG = false;
 
-                if (keyDownP)
-                { // priestess
-                    key = 'p';
-                }
-                else if (Input.GetKeyDown(KeyCode.M))
-                {
-                    keyDownM = true;
-                    key = 'm';
-                }
-                else if (Input.GetKeyDown(KeyCode.G))
-                {
-                    keyDownG = true;
-                    key = 'g';
-                }
-
-                if (keyDownP || keyDownM || keyDownG)
-                {
-                    _runningSequence[1] = key;
-                    _lastKeyPressed = key;
-                    // a BUILD must happen, so must return early with Check = true
-                    BuildingChoice = key;
-                    Check = true;
-                    return;
-                }
+            if (expectBuildingKey && ResolveBuildingKey())
+            {
+                Check = true;
+                return;
             }
 
             // SEQUENCE STEP 3 - ESC TO CANCEL AIM
@@ -148,7 +167,7 @@ namespace Fcast
             }
             Check = false;
         }
-        public InputSequenceCheck()
+        public InputBuildSequenceCheck()
         {
         }
     }
