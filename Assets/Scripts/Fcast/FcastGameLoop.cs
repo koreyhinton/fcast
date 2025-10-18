@@ -99,9 +99,9 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     // KEYBOARD INPUT SEQUENCE CHECK
     if (playerLoaded)
     {
-        g.InputSequenceCheck.Exec();
+        g.InputBuildSequenceCheck.Exec();
     }
-    if (playerLoaded && g.InputSequenceCheck)
+    if (playerLoaded && g.InputBuildSequenceCheck)
     {
         aimedAndBuilt = true;
     }
@@ -130,10 +130,31 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         //spriteTransform.localEulerAngles = new Vector3(0, 0, angles[_i]); //e;
     }
 
+    // GET POSITION FOR BUILD PREVIEW OR REGULAR BUILD
+    if (aimedAndBuilt)
+    {
+        buildingX = playerX + g.InputBuildSequenceCheck.Offset.X;
+        buildingY = playerY + g.InputBuildSequenceCheck.Offset.Y;
+    }
+
+    // SHOW BUILDING BLUEPRINT, STOP FURTHER BUILD PROPAGATION
+    if (
+        aimedAndBuilt &&
+        g.InputBuildSequenceCheck.PendingBuildingChoice != (char)0
+    )
+    {
+        g.BuildingPreviewUpdater.BuildingChoice
+            = g.InputBuildSequenceCheck.PendingBuildingChoice;
+        g.BuildingPreviewUpdater.X = buildingX;
+        g.BuildingPreviewUpdater.Y = buildingY;
+        g.BuildingPreviewUpdater.Exec();
+        aimedAndBuilt = false;
+    }
+
     // REJECT BUILD FOR LACK OF RESOURCE REASON
     if (
         aimedAndBuilt &&
-        costTable[g.InputSequenceCheck.BuildingChoice]
+        costTable[g.InputBuildSequenceCheck.BuildingChoice]
         > g.MageResources[ResourceType.Gold].Amount
     )
     {
@@ -143,11 +164,6 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     // REJECT BUILD FOR NOT WALKABLE REASON
     // see ../GameLogic/ActionLoop/Actions/JustMoveAction.cs
     //         if (_grid.IsWalkable(position))
-    if (aimedAndBuilt)
-    {
-        buildingX = playerX + g.InputSequenceCheck.Offset.X;
-        buildingY = playerY + g.InputSequenceCheck.Offset.Y;
-    }
     if (
         aimedAndBuilt &&
         !g.Grid.IsWalkable(new Osnowa.Osnowa.Core.Position(buildingX, buildingY))
@@ -157,23 +173,23 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     }
 
     // AIM AND BUILD
-    if (aimedAndBuilt && g.InputSequenceCheck.BuildingChoice == 't')
+    if (aimedAndBuilt && g.InputBuildSequenceCheck.BuildingChoice == 't')
     {
         buildingX -= 1; //temple buildings are wide, -1 to center it
         g.MageResources[ResourceType.Gold].Amount -= costTable['t'];
         // Debug.Log("Bought Temple, remaining gold: " + g.MageResources[ResourceType.Gold].Amount);
     }
-    if (aimedAndBuilt && g.InputSequenceCheck.BuildingChoice != 'p' && g.InputSequenceCheck.BuildingChoice != 'm' && g.InputSequenceCheck.BuildingChoice != 'g')
+    if (aimedAndBuilt && g.InputBuildSequenceCheck.BuildingChoice != 'p' && g.InputBuildSequenceCheck.BuildingChoice != 'm' && g.InputBuildSequenceCheck.BuildingChoice != 'g')
     {
-        // Debug.Log("building " + g.InputSequenceCheck.BuildingChoice + " at: " + buildingX + "," + buildingY);
+        // Debug.Log("building " + g.InputBuildSequenceCheck.BuildingChoice + " at: " + buildingX + "," + buildingY);
         g.BuildingEventIntervalCheck.X = buildingX;
         g.BuildingEventIntervalCheck.Y = buildingY;
-        g.BuildingEventIntervalCheck.BuildingType = g.InputSequenceCheck.BuildingChoice;
+        g.BuildingEventIntervalCheck.BuildingType = g.InputBuildSequenceCheck.BuildingChoice;
         g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Construct;
         g.BuildingEventIntervalCheck.Seconds = 0;
         g.BuildingEventIntervalCheck.Exec();
     }
-    if (aimedAndBuilt && g.InputSequenceCheck.BuildingChoice != 'p' && g.InputSequenceCheck.BuildingChoice != 'm' && g.InputSequenceCheck.BuildingChoice != 'g' && g.BuildingEventIntervalCheck)
+    if (aimedAndBuilt && g.InputBuildSequenceCheck.BuildingChoice != 'p' && g.InputBuildSequenceCheck.BuildingChoice != 'm' && g.InputBuildSequenceCheck.BuildingChoice != 'g' && g.BuildingEventIntervalCheck)
     {
         aimWillConstructBuilding = true;
         g.BuildingUpdateViewsCheck.AddQueryX = buildingX;
@@ -181,18 +197,18 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         addBuildingQuery = true;
     }
 
-    if (aimedAndBuilt && !aimWillConstructBuilding && g.InputSequenceCheck.BuildingChoice == 'g')
+    if (aimedAndBuilt && !aimWillConstructBuilding && g.InputBuildSequenceCheck.BuildingChoice == 'g')
         g.MageResources[ResourceType.Gold].Amount -= costTable['g'];
-    if (aimedAndBuilt && !aimWillConstructBuilding && g.InputSequenceCheck.BuildingChoice == 'm')
+    if (aimedAndBuilt && !aimWillConstructBuilding && g.InputBuildSequenceCheck.BuildingChoice == 'm')
         g.MageResources[ResourceType.Gold].Amount -= costTable['m'];
     if (aimedAndBuilt && !aimWillConstructBuilding && (
-            g.InputSequenceCheck.BuildingChoice == 'g' || (g.BuildingUpdateViewsCheck.Counts['g'] > 0 && g.InputSequenceCheck.BuildingChoice == 'm')))
+            g.InputBuildSequenceCheck.BuildingChoice == 'g' || (g.BuildingUpdateViewsCheck.Counts['g'] > 0 && g.InputBuildSequenceCheck.BuildingChoice == 'm')))
     {
         g.GoldMineIntervalCheck.Miners = g.BuildingUpdateViewsCheck.Counts['m'];
         aimWillTryBakeUnit = true;
     }
 
-    if (aimedAndBuilt && !aimWillConstructBuilding && g.BuildingUpdateViewsCheck.Counts['t'] > 0 && g.InputSequenceCheck.BuildingChoice == 'p')
+    if (aimedAndBuilt && !aimWillConstructBuilding && g.BuildingUpdateViewsCheck.Counts['t'] > 0 && g.InputBuildSequenceCheck.BuildingChoice == 'p')
     {
         // priestess (only build if there's a temple)
         g.MageResources[ResourceType.Gold].Amount -= costTable['p'];
@@ -204,7 +220,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         g.BuildingEventIntervalCheck.X = buildingX;
         g.BuildingEventIntervalCheck.Y = buildingY;
         g.BuildingEventIntervalCheck.Seconds = 0;
-        g.BuildingEventIntervalCheck.BuildingType = g.InputSequenceCheck.BuildingChoice;
+        g.BuildingEventIntervalCheck.BuildingType = g.InputBuildSequenceCheck.BuildingChoice;
         g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Construct;
         g.BuildingEventIntervalCheck.Exec(); // once for construct
         addBuildingQuery = true;
@@ -232,7 +248,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     {
         g.DiffLog.Action = LogAction.Write;
         g.DiffLog.Key = "buildingchoice_xy";
-        g.DiffLog.Value = g.InputSequenceCheck.BuildingChoice + "_("+buildingX+","+buildingY+")";
+        g.DiffLog.Value = g.InputBuildSequenceCheck.BuildingChoice + "_("+buildingX+","+buildingY+")";
         g.DiffLog.Exec();
         g.BuildingUpdateViewsCheck.AddQueryX = buildingX;
         g.BuildingUpdateViewsCheck.AddQueryY = buildingY;
