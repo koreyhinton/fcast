@@ -152,10 +152,10 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     if (
         placingValidBuildPreview && (
         g.InputBuildSequenceCheck.PendingBuildingChoice == 't' && (
-        !g.Grid.IsWalkable(
-            new Osnowa.Osnowa.Core.Position(buildingX+1, buildingY)) ||
-        !g.Grid.IsWalkable(
-            new Osnowa.Osnowa.Core.Position(buildingX-1, buildingY))))
+        ExecCheck.Nand( // !walkable || !walkable
+            g.Grid.IsWalkable(new Osnowa.Osnowa.Core.Position(buildingX+1, buildingY)),
+            g.Grid.IsWalkable(new Osnowa.Osnowa.Core.Position(buildingX-1, buildingY))
+        )))
     )
     {
         // only the temple spans 3 wide
