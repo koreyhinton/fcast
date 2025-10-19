@@ -3,12 +3,22 @@ namespace Fcast
 {
     public class BuildingPreviewUpdater : IExec
     {
+        public bool Valid { get; set; } = false;
         public char BuildingChoice { get; set; } = (char)0;
         public int X { get; set; }
         public int Y { get; set; }
         private GameObject _previewBuildGO = null;
         private XY _lastPreviewXY { get; set; } = new XY() { X = -1, Y = -1 };
         private char _lastBuildingChoice { get; set; } = (char)0;
+
+        private void Color()
+        {
+            var color = Valid ? new Color(1f, 1f, 1f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);
+            foreach(var c in _previewBuildGO.GetComponentsInChildren<SpriteRenderer>())
+            {
+                c.color = color;
+            }
+        }
 
         private void Create()
         {
@@ -17,7 +27,7 @@ namespace Fcast
             {
                 prefabName = "Prefabs/BuildingView"; // temple
             }
-            if (BuildingChoice == 'p') // todo: use the Bake case below instead (once it is working)
+            if (BuildingChoice == 'p')
             {
                 prefabName = "Prefabs/PriestessView"; // priestess
             }
@@ -30,12 +40,13 @@ namespace Fcast
                 prefabName = "Prefabs/MinerView";
             }
             var prefab = Resources.Load<GameObject>(prefabName);
-            UnityEngine.Object.Instantiate(
+            _previewBuildGO = UnityEngine.Object.Instantiate(
                 prefab,
                 new Vector3((float)X, (float)Y, 0f),
                 Quaternion.identity,
                 /*parent:*/ null
             );
+            Color();
         }
 
         public void Exec()
@@ -55,6 +66,7 @@ namespace Fcast
             if (changeBuild || firstBuild)
             {
                 Create();
+                _lastBuildingChoice = BuildingChoice;
                 _lastPreviewXY.X = X;
                 _lastPreviewXY.Y = Y;
             }
@@ -62,6 +74,7 @@ namespace Fcast
             {
                 // just update position
                 _previewBuildGO.transform.position = new Vector3(X, Y, 0f);
+                Color();
                 _lastPreviewXY.X = X;
                 _lastPreviewXY.Y = Y;
             }

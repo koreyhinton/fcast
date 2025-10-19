@@ -90,7 +90,7 @@ namespace Fcast
                 var key = 'a';
                 _runningSequence[0] = key;
                 _lastSequenceKeyPressed = key;
-                PendingBuildingChoice = 't';
+                PendingBuildingChoice = 't'; // default
             }
 
             // SEQUENCE STEP 2 (OPTIONAL & REPEATABLE) - AIM AND BUILD
@@ -139,7 +139,17 @@ namespace Fcast
                 if (keyDownRight)
                     Offset.X += 1;
                 if (keyDownUp || keyDownLeft || keyDownRight || keyDownDown)
+                {
+                    if (BuildingChoice != (char)0)
+                    {
+                        // reset for next placement
+                        PendingBuildingChoice = BuildingChoice;
+                        BuildingChoice = (char)0;
+                    }
                     _lastSequenceKeyPressed = (char)1;
+                    Check = true;
+                    return;
+                }
             }
             var expectBuildingKey = _runningSequence[0] == 'a' &&
                 _runningSequence[2] == (char)0;

@@ -38,6 +38,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     int playerX = -1;
     int playerY = -1;
     bool addBuildingQuery = false;
+    bool placingValidBuildPreview = false;
 
     // ONE-TIME ONLY LOGIC
     if (g.MageResources == null)
@@ -140,11 +141,35 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     // SHOW BUILDING BLUEPRINT, STOP FURTHER BUILD PROPAGATION
     if (
         aimedAndBuilt &&
+        g.InputBuildSequenceCheck.PendingBuildingChoice != (char)0 &&
+        g.Grid.IsWalkable(
+            new Osnowa.Osnowa.Core.Position(buildingX, buildingY))
+    )
+    {
+        placingValidBuildPreview = true;
+    }
+
+    if (
+        placingValidBuildPreview && (
+        g.InputBuildSequenceCheck.PendingBuildingChoice == 't' && (
+        !g.Grid.IsWalkable(
+            new Osnowa.Osnowa.Core.Position(buildingX+1, buildingY)) ||
+        !g.Grid.IsWalkable(
+            new Osnowa.Osnowa.Core.Position(buildingX-1, buildingY))))
+    )
+    {
+        // only the temple spans 3 wide
+        placingValidBuildPreview = false;
+    }
+
+    if (
+        aimedAndBuilt &&
         g.InputBuildSequenceCheck.PendingBuildingChoice != (char)0
     )
     {
         g.BuildingPreviewUpdater.BuildingChoice
             = g.InputBuildSequenceCheck.PendingBuildingChoice;
+        g.BuildingPreviewUpdater.Valid = placingValidBuildPreview;
         g.BuildingPreviewUpdater.X = buildingX;
         g.BuildingPreviewUpdater.Y = buildingY;
         g.BuildingPreviewUpdater.Exec();
