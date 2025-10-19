@@ -18,5 +18,26 @@ namespace Fcast
             return o.Check;
         }
         public abstract void Exec();
+        public static bool Nand(params bool[] checks)
+        {
+            foreach (var c in checks)
+                if (!c)
+                    return true;
+            return false;
+        }
+        public static bool Nand(params ExecCheck[] checks)
+        {
+            foreach (var c in checks)
+                if (!c)
+                    return true;
+            return false;
+        }
+        public static bool Nand(params object[] checks)
+        {
+            foreach (var c in checks)
+                if (!((bool)c))
+                    return true;
+            return false;
+        }
     }
 }
