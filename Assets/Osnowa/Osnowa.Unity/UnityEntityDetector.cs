@@ -50,6 +50,7 @@ namespace Osnowa.Osnowa.Unity
         {
             IEnumerable<GameEntity> entitiesHit = hitObjects
                 .Select(c => c.GetComponent<EntityViewBehaviour>())
+                .Where(v => v != null) // ??
                 .Select(v => v.Entity)
                 .Where(e => e != null && e.hasPosition); // buildings are not handled by game entities / entitas
 
@@ -60,6 +61,7 @@ namespace Osnowa.Osnowa.Unity
         {
             IEnumerable<PositionedEntity> entitiesHit = hitObjects
                 .Select(c => c.GetComponent<EntityViewBehaviour>())
+                .Where(b => b != null) // ??
                 .Select(b => b.PositionedEntity);
 
             return entitiesHit;

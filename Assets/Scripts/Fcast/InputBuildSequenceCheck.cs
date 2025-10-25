@@ -6,6 +6,7 @@ namespace Fcast
 {
     public class InputBuildSequenceCheck : ExecCheck
     {
+        public bool Frame { get; set; } = false;
         public char BuildingChoice = (char)0; // t -> temple
         public char PendingBuildingChoice = (char)0;
         public XY Offset = new XY() { X = 0, Y = 0 };
@@ -54,8 +55,12 @@ namespace Fcast
                     _runningSequence[1] = key;
                     _lastSequenceKeyPressed = key;
                     // a BUILD must happen, so must return early with Check = true
-                    PendingBuildingChoice = (char)0;
+
+                    // don't set PendingBuildingChoice to 0, you can keep on building more
+                    // after one is placed
+                    // PendingBuildingChoice = (char)0;
                     BuildingChoice = key;
+                    PendingBuildingChoice = BuildingChoice; // allow additional placements
                 }
                 else
                 {
@@ -82,6 +87,7 @@ namespace Fcast
 
         public override void Exec()
         {
+            if (!Frame) return;
             // SEQUENCE STEP 1 - 'A' KEY
             var expectAKey = _runningSequence[1] == (char)0;
             var keyDownA = Input.GetKeyDown(KeyCode.A);

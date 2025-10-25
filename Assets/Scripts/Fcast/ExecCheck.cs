@@ -39,5 +39,17 @@ namespace Fcast
                     return true;
             return false;
         }
+        public static bool Imply(bool a, bool b)
+        {
+            return !a || b;
+        }
+        public static bool Imply(ExecCheck a, ExecCheck b)
+        {
+            return !a || b;
+        }
+        public static bool Imply(object a, object b)
+        {
+            return !(bool)a || (bool)b;
+        }
     }
 }

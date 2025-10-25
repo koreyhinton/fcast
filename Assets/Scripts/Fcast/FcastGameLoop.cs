@@ -30,7 +30,8 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     GameObject playerView = null;
     bool playerLoaded = false;
     bool playerBounce = false;
-    bool aimedAndBuilt = false; // todo: handle more key bindings for building types (for now just using builtin ESC)
+    // bool aimBuildKeyAccepted = false; // final build placement (not preview)
+    bool aimKeyPressed = false;
     bool aimWillConstructBuilding = false;
     bool aimWillTryBakeUnit = false;
     int buildingX = -1;
@@ -38,6 +39,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     int playerX = -1;
     int playerY = -1;
     bool addBuildingQuery = false;
+    bool placingBuildPreview = false;
     bool placingValidBuildPreview = false;
 
     // ONE-TIME ONLY LOGIC
@@ -102,9 +104,11 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     {
         g.InputBuildSequenceCheck.Exec();
     }
-    if (playerLoaded && g.InputBuildSequenceCheck)
+    if (
+        playerLoaded && g.InputBuildSequenceCheck
+    )
     {
-        aimedAndBuilt = true;
+        aimKeyPressed = true;
     }
 
     // PLAYER ANIMATION INTERVAL
@@ -116,6 +120,8 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         g.DiffLog.Exec();
         g.EventIntervalCheck.Type = EventIntervalCheckType.PlayerBounce;
         g.EventIntervalCheck.Exec();
+
+        g.InputBuildSequenceCheck.Frame = g.Frame;
     }
     if (!g.Over && playerLoaded && g.EventIntervalCheck)
     {
@@ -132,79 +138,111 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     }
 
     // GET POSITION FOR BUILD PREVIEW OR REGULAR BUILD
-    if (aimedAndBuilt)
+    if (aimKeyPressed)
     {
         buildingX = playerX + g.InputBuildSequenceCheck.Offset.X;
         buildingY = playerY + g.InputBuildSequenceCheck.Offset.Y;
     }
 
-    // SHOW BUILDING BLUEPRINT, STOP FURTHER BUILD PROPAGATION
     if (
-        aimedAndBuilt &&
-        g.InputBuildSequenceCheck.PendingBuildingChoice != (char)0 &&
-        g.Grid.IsWalkable(
-            new Osnowa.Osnowa.Core.Position(buildingX, buildingY))
-    )
-    {
-        placingValidBuildPreview = true;
-    }
-
-    if (
-        placingValidBuildPreview && (
-        g.InputBuildSequenceCheck.PendingBuildingChoice == 't' && (
-        ExecCheck.Nand( // !walkable || !walkable
-            g.Grid.IsWalkable(new Osnowa.Osnowa.Core.Position(buildingX+1, buildingY)),
-            g.Grid.IsWalkable(new Osnowa.Osnowa.Core.Position(buildingX-1, buildingY))
-        )))
-    )
-    {
-        // only the temple spans 3 wide
-        placingValidBuildPreview = false;
-    }
-
-    if (
-        aimedAndBuilt &&
+        aimKeyPressed &&
         g.InputBuildSequenceCheck.PendingBuildingChoice != (char)0
     )
     {
+        placingBuildPreview = true;
+        Debug.Log("Placing Build preview: "+buildingX+","+buildingY);
+    }
+
+    // SHOW BUILDING BLUEPRINT, STOP FURTHER BUILD PROPAGATION
+    // buildings (or character units) go from stages:
+    //    preview -> spawning -> razing (or fully built and receives damage)
+    if (
+        placingBuildPreview &&
+        g.Grid.IsWalkable(
+            new Osnowa.Osnowa.Core.Position(buildingX, buildingY)) &&
+        ExecCheck.Imply( // !a || b
+            g.InputBuildSequenceCheck.PendingBuildingChoice == 't',
+            g.Grid.IsWalkable(
+                new Osnowa.Osnowa.Core.Position(buildingX+1, buildingY)) &&
+            g.Grid.IsWalkable(
+                new Osnowa.Osnowa.Core.Position(buildingX-1, buildingY))
+        )
+    )
+    {
+        placingValidBuildPreview = true; // only the temple spans 3 wide
+    }
+
+    if (
+        g.BuildingPreviewUpdater.PreviewExists &&
+        g.InputBuildSequenceCheck.PendingBuildingChoice == (char)0
+    )
+    {
+        // Remove the preview
+        Debug.Log("REMOVING THE PREVIEW");
         g.BuildingPreviewUpdater.BuildingChoice
             = g.InputBuildSequenceCheck.PendingBuildingChoice;
-        g.BuildingPreviewUpdater.Valid = placingValidBuildPreview;
+        g.BuildingPreviewUpdater.Exec();
+    }
+
+    if (placingBuildPreview)
+    {
+        g.BuildingPreviewUpdater.BuildingChoice
+            = g.InputBuildSequenceCheck.PendingBuildingChoice;
+        g.BuildingPreviewUpdater.ValidPlacement = placingValidBuildPreview;
         g.BuildingPreviewUpdater.X = buildingX;
         g.BuildingPreviewUpdater.Y = buildingY;
         g.BuildingPreviewUpdater.Exec();
-        aimedAndBuilt = false;
     }
-
-    // REJECT BUILD FOR LACK OF RESOURCE REASON
-    if (
-        aimedAndBuilt &&
-        costTable[g.InputBuildSequenceCheck.BuildingChoice]
-        > g.MageResources[ResourceType.Gold].Amount
-    )
+    if (!placingBuildPreview && g.BuildingPreviewUpdater.PreviewExists)
     {
-        aimedAndBuilt = false;
-    }
-
-    // REJECT BUILD FOR NOT WALKABLE REASON
-    // see ../GameLogic/ActionLoop/Actions/JustMoveAction.cs
-    //         if (_grid.IsWalkable(position))
-    if (
-        aimedAndBuilt &&
-        !g.Grid.IsWalkable(new Osnowa.Osnowa.Core.Position(buildingX, buildingY))
-    )
-    {
-        aimedAndBuilt = false;
+        g.BuildingPreviewUpdater.Exec();
     }
 
     // AIM AND BUILD
-    if (aimedAndBuilt && g.InputBuildSequenceCheck.BuildingChoice == 't')
+    if (
+        aimKeyPressed && /*!placingBuildPreview*/ g.InputBuildSequenceCheck.BuildingChoice != (char)0 && (
+        costTable[g.InputBuildSequenceCheck.BuildingChoice]
+        < g.MageResources[ResourceType.Gold].Amount) && (
+        g.Grid.IsWalkable(new Osnowa.Osnowa.Core.Position(buildingX, buildingY)))
+    )
     {
-        buildingX -= 1; //temple buildings are wide, -1 to center it
-        g.MageResources[ResourceType.Gold].Amount -= costTable['t'];
-        // Debug.Log("Bought Temple, remaining gold: " + g.MageResources[ResourceType.Gold].Amount);
+        // enough gold and walkable
+
+        // queue a building spawner
+        g.QueuedSpawner = new BuildingSpawner();
+        g.QueuedSpawner.X = g.BuildingPreviewUpdater.X;
+        g.QueuedSpawner.Y = g.BuildingPreviewUpdater.Y;
+        g.QueuedSpawner.BuildingChoice = g.InputBuildSequenceCheck.BuildingChoice;
+        g.MageResources[ResourceType.Gold].Amount -= costTable[g.QueuedSpawner.BuildingChoice];
+        ((IExec)g.QueuedSpawner).Exec();
     }
-    if (aimedAndBuilt && g.InputBuildSequenceCheck.BuildingChoice != 'p' && g.InputBuildSequenceCheck.BuildingChoice != 'm' && g.InputBuildSequenceCheck.BuildingChoice != 'g')
+
+    if (g.BuildingSpawner != null)
+    {
+        g.BuildingSpawner.Exec();
+    }
+    if (g.BuildingSpawner != null && g.BuildingSpawner)
+    {
+        g.QueuedRazer = new BuildingRazer();
+        g.QueuedRazer.X = g.BuildingSpawner.X;
+        g.QueuedRazer.Y = g.BuildingSpawner.Y;
+        g.QueuedRazer.BuildingChoice = g.BuildingSpawner.BuildingChoice;
+        g.BuildingSpawner = null;
+        Debug.Log("NULLed out the spawner");
+        ((IExec)g.QueuedRazer).Exec(); // don't care about razed status when created
+    }
+    if (g.BuildingRazer != null)
+    {
+        g.BuildingRazer.Exec();
+    }
+    if (g.BuildingRazer != null && g.BuildingRazer)
+    {
+        g.BuildingRazer = null;
+    }
+
+    // TODO: REMOVE CODE
+    /********************
+    if (aimBuildKeyAccepted && g.InputBuildSequenceCheck.BuildingChoice != 'p' && g.InputBuildSequenceCheck.BuildingChoice != 'm' && g.InputBuildSequenceCheck.BuildingChoice != 'g')
     {
         // Debug.Log("building " + g.InputBuildSequenceCheck.BuildingChoice + " at: " + buildingX + "," + buildingY);
         g.BuildingEventIntervalCheck.X = buildingX;
@@ -214,7 +252,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         g.BuildingEventIntervalCheck.Seconds = 0;
         g.BuildingEventIntervalCheck.Exec();
     }
-    if (aimedAndBuilt && g.InputBuildSequenceCheck.BuildingChoice != 'p' && g.InputBuildSequenceCheck.BuildingChoice != 'm' && g.InputBuildSequenceCheck.BuildingChoice != 'g' && g.BuildingEventIntervalCheck)
+    if (aimBuildKeyAccepted && g.InputBuildSequenceCheck.BuildingChoice != 'p' && g.InputBuildSequenceCheck.BuildingChoice != 'm' && g.InputBuildSequenceCheck.BuildingChoice != 'g' && g.BuildingEventIntervalCheck)
     {
         aimWillConstructBuilding = true;
         g.BuildingUpdateViewsCheck.AddQueryX = buildingX;
@@ -222,18 +260,18 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         addBuildingQuery = true;
     }
 
-    if (aimedAndBuilt && !aimWillConstructBuilding && g.InputBuildSequenceCheck.BuildingChoice == 'g')
+    if (aimBuildKeyAccepted && !aimWillConstructBuilding && g.InputBuildSequenceCheck.BuildingChoice == 'g')
         g.MageResources[ResourceType.Gold].Amount -= costTable['g'];
-    if (aimedAndBuilt && !aimWillConstructBuilding && g.InputBuildSequenceCheck.BuildingChoice == 'm')
+    if (aimBuildKeyAccepted && !aimWillConstructBuilding && g.InputBuildSequenceCheck.BuildingChoice == 'm')
         g.MageResources[ResourceType.Gold].Amount -= costTable['m'];
-    if (aimedAndBuilt && !aimWillConstructBuilding && (
+    if (aimBuildKeyAccepted && !aimWillConstructBuilding && (
             g.InputBuildSequenceCheck.BuildingChoice == 'g' || (g.BuildingUpdateViewsCheck.Counts['g'] > 0 && g.InputBuildSequenceCheck.BuildingChoice == 'm')))
     {
         g.GoldMineIntervalCheck.Miners = g.BuildingUpdateViewsCheck.Counts['m'];
         aimWillTryBakeUnit = true;
     }
 
-    if (aimedAndBuilt && !aimWillConstructBuilding && g.BuildingUpdateViewsCheck.Counts['t'] > 0 && g.InputBuildSequenceCheck.BuildingChoice == 'p')
+    if (aimBuildKeyAccepted && !aimWillConstructBuilding && g.BuildingUpdateViewsCheck.Counts['t'] > 0 && g.InputBuildSequenceCheck.BuildingChoice == 'p')
     {
         // priestess (only build if there's a temple)
         g.MageResources[ResourceType.Gold].Amount -= costTable['p'];
@@ -250,6 +288,8 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         g.BuildingEventIntervalCheck.Exec(); // once for construct
         addBuildingQuery = true;
     }
+    ********************/
+
     // todo: once bake timer bug is fixed, uncommnet to have it be timed:
     /*if (aimWillTryBakeUnit && g.BuildingEventIntervalCheck)
     {
@@ -264,7 +304,8 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         g.BuildingEventIntervalCheck.Exec(); // second for bake
     }*/
 
-    // BUILDING VIEW UPDATES
+    // TODO: REMOVE BUILDING VIEW UPDATES
+    /******************8
     if (g.BuildingUpdateViewsCheck.BuildingEventIntervalCheck == null)
     {
         g.BuildingUpdateViewsCheck.BuildingEventIntervalCheck = g.BuildingEventIntervalCheck;
@@ -287,6 +328,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         g.TempleCount = g.BuildingUpdateViewsCheck.Counts['t'];
         // Debug.Log("Building Views updated");
     }
+    ******************/
 
     // END OF LOOP ITERATION - FLUSH LOG
     {
