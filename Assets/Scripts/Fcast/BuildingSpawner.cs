@@ -14,6 +14,7 @@ namespace Fcast
         private DateTime _time { get; set; }
         //private bool _done { get; set; } = false;
         private bool _initialized { get; set; } = false;
+        private int _lastActiveSwitchSecond { get; set; }
         private bool _elapsed()
         {
             //if (_done)
@@ -87,6 +88,19 @@ namespace Fcast
                 Check = true;
                 return;
             }
+
+            if (_initialized && _toolGO != null)
+            {
+                int currentElapsedSecond = (int)((DateTime.UtcNow - _time).TotalSeconds);
+                var toggleCondition = // every second change
+                    currentElapsedSecond > _lastActiveSwitchSecond;
+                if (toggleCondition)
+                {
+                    _lastActiveSwitchSecond = currentElapsedSecond;
+                    _toolGO.SetActive(!_toolGO.activeSelf);
+                }
+            }
+
             Check = false;
         }
     }

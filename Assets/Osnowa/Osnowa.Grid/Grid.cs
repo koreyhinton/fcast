@@ -102,6 +102,15 @@ namespace Osnowa.Osnowa.Grid
             _pathfindingDataHolder.UpdateWalkability(position, walkability);
         }
 
+        public void ActuallySetWalkability(Position position, bool isWalkable)
+        {
+            float walkability = isWalkable ? 1f : 0f;
+            
+            _walkability.Set(position, walkability);
+            _positionFlags.Set(position, isWalkable ? 1UL : 0UL);
+            _pathfindingDataHolder.UpdateWalkability(position, walkability);
+        }
+
         public void SetWalkability(Position position, float walkability)
         {
             _walkability.Set(position, walkability);

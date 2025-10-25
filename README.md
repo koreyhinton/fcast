@@ -32,19 +32,21 @@ Aim and build a **g**oldmine:
 a <ARROW_KEYS> g ESC
 ```
 
-Aim and build a **g**oldmine and then a (gold)**m**iner:
-
-```
-a <ARROW_KEYS> g <ARROW_KEYS> m ESC
-```
-
 Aim and build a **t**emple:
 
 ```
 a <ARROW_KEYS> t ESC
 ```
 
-Aim and build a temple and a **p**riestess:
+### Build Recipes
+
+Aim and build a **g**oldmine and then a (gold)**m**iner:
+
+```
+a <ARROW_KEYS> g <ARROW_KEYS> m ESC
+```
+
+Aim and build a temple and then a **p**riestess:
 
 ```
 a <ARROW_KEYS> t <ARROW_KEYS> p ESC
@@ -55,6 +57,7 @@ a <ARROW_KEYS> t <ARROW_KEYS> p ESC
 1. Just launch the editor directly without the hub (since Unity Hub on Ubuntu failed to use custom file locations)
 
     ```
+    cd ../../2019.4.20f1/Editor/
     ./Unity -projectPath ../../repos/fcast
     ```
 

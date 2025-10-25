@@ -165,11 +165,13 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
             g.Grid.IsWalkable(
                 new Osnowa.Osnowa.Core.Position(buildingX+1, buildingY)) &&
             g.Grid.IsWalkable(
-                new Osnowa.Osnowa.Core.Position(buildingX-1, buildingY))
+                new Osnowa.Osnowa.Core.Position(buildingX-1, buildingY)) &&
+            g.Grid.IsWalkable(
+                new Osnowa.Osnowa.Core.Position(buildingX-2, buildingY))
         )
     )
     {
-        placingValidBuildPreview = true; // only the temple spans 3 wide
+        placingValidBuildPreview = true; // only the temple spans 4 wide
     }
 
     if (
@@ -221,14 +223,41 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     {
         g.BuildingSpawner.Exec();
     }
+    if (
+        g.BuildingSpawner != null && g.BuildingSpawner &&
+        g.BuildingSpawner.BuildingChoice == 't' // temple spans width of 4
+    )
+    {
+        var leftPosition =
+            new Osnowa.Osnowa.Core.Position(
+                g.BuildingSpawner.X-1, g.BuildingSpawner.Y
+            );
+        var twoLeftPosition =
+            new Osnowa.Osnowa.Core.Position(
+                g.BuildingSpawner.X-2, g.BuildingSpawner.Y
+            );
+        var rightPosition =
+            new Osnowa.Osnowa.Core.Position(
+                g.BuildingSpawner.X+1, g.BuildingSpawner.Y
+            );
+        g.Grid.ActuallySetWalkability(twoLeftPosition, false);
+        g.Grid.ActuallySetWalkability(leftPosition, false);
+        g.Grid.ActuallySetWalkability(rightPosition, false);
+        Debug.Log("SetWalkability " + leftPosition.x + "," + leftPosition.y);
+        Debug.Log("SetWalkability " + rightPosition.x + "," + rightPosition.y);
+    }
     if (g.BuildingSpawner != null && g.BuildingSpawner)
     {
+        var position = new Osnowa.Osnowa.Core.Position(
+            g.BuildingSpawner.X, g.BuildingSpawner.Y
+        );
+        g.Grid.ActuallySetWalkability(position, false);
+        Debug.Log("SetWalkability " + position.x + "," + position.y);
         g.QueuedRazer = new BuildingRazer();
         g.QueuedRazer.X = g.BuildingSpawner.X;
         g.QueuedRazer.Y = g.BuildingSpawner.Y;
         g.QueuedRazer.BuildingChoice = g.BuildingSpawner.BuildingChoice;
         g.BuildingSpawner = null;
-        Debug.Log("NULLed out the spawner");
         ((IExec)g.QueuedRazer).Exec(); // don't care about razed status when created
     }
     if (g.BuildingRazer != null)
@@ -239,96 +268,6 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     {
         g.BuildingRazer = null;
     }
-
-    // TODO: REMOVE CODE
-    /********************
-    if (aimBuildKeyAccepted && g.InputBuildSequenceCheck.BuildingChoice != 'p' && g.InputBuildSequenceCheck.BuildingChoice != 'm' && g.InputBuildSequenceCheck.BuildingChoice != 'g')
-    {
-        // Debug.Log("building " + g.InputBuildSequenceCheck.BuildingChoice + " at: " + buildingX + "," + buildingY);
-        g.BuildingEventIntervalCheck.X = buildingX;
-        g.BuildingEventIntervalCheck.Y = buildingY;
-        g.BuildingEventIntervalCheck.BuildingType = g.InputBuildSequenceCheck.BuildingChoice;
-        g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Construct;
-        g.BuildingEventIntervalCheck.Seconds = 0;
-        g.BuildingEventIntervalCheck.Exec();
-    }
-    if (aimBuildKeyAccepted && g.InputBuildSequenceCheck.BuildingChoice != 'p' && g.InputBuildSequenceCheck.BuildingChoice != 'm' && g.InputBuildSequenceCheck.BuildingChoice != 'g' && g.BuildingEventIntervalCheck)
-    {
-        aimWillConstructBuilding = true;
-        g.BuildingUpdateViewsCheck.AddQueryX = buildingX;
-        g.BuildingUpdateViewsCheck.AddQueryY = buildingY;
-        addBuildingQuery = true;
-    }
-
-    if (aimBuildKeyAccepted && !aimWillConstructBuilding && g.InputBuildSequenceCheck.BuildingChoice == 'g')
-        g.MageResources[ResourceType.Gold].Amount -= costTable['g'];
-    if (aimBuildKeyAccepted && !aimWillConstructBuilding && g.InputBuildSequenceCheck.BuildingChoice == 'm')
-        g.MageResources[ResourceType.Gold].Amount -= costTable['m'];
-    if (aimBuildKeyAccepted && !aimWillConstructBuilding && (
-            g.InputBuildSequenceCheck.BuildingChoice == 'g' || (g.BuildingUpdateViewsCheck.Counts['g'] > 0 && g.InputBuildSequenceCheck.BuildingChoice == 'm')))
-    {
-        g.GoldMineIntervalCheck.Miners = g.BuildingUpdateViewsCheck.Counts['m'];
-        aimWillTryBakeUnit = true;
-    }
-
-    if (aimBuildKeyAccepted && !aimWillConstructBuilding && g.BuildingUpdateViewsCheck.Counts['t'] > 0 && g.InputBuildSequenceCheck.BuildingChoice == 'p')
-    {
-        // priestess (only build if there's a temple)
-        g.MageResources[ResourceType.Gold].Amount -= costTable['p'];
-        aimWillTryBakeUnit = true;
-    }
-    if (aimWillTryBakeUnit)
-    {
-        // Debug.Log("Prepare to bake");
-        g.BuildingEventIntervalCheck.X = buildingX;
-        g.BuildingEventIntervalCheck.Y = buildingY;
-        g.BuildingEventIntervalCheck.Seconds = 0;
-        g.BuildingEventIntervalCheck.BuildingType = g.InputBuildSequenceCheck.BuildingChoice;
-        g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Construct;
-        g.BuildingEventIntervalCheck.Exec(); // once for construct
-        addBuildingQuery = true;
-    }
-    ********************/
-
-    // todo: once bake timer bug is fixed, uncommnet to have it be timed:
-    /*if (aimWillTryBakeUnit && g.BuildingEventIntervalCheck)
-    {
-        Debug.Log("Prepare to bake 2");
-        addBuildingQuery = true;
-        g.BuildingEventIntervalCheck.X = buildingX;
-        g.BuildingEventIntervalCheck.Y = buildingY;
-        g.BuildingEventIntervalCheck.BuildingType = 'p';
-        g.BuildingEventIntervalCheck.EventType = BuildingEventIntervalType.Bake;
-        g.BuildingEventIntervalCheck.Seconds = 20; // 20 seconds is max time, 5 is min time
-        for (int i=0; i<3 && i<g.BuildingUpdateViewsCheck.Counts['t']; i++) g.BuildingEventIntervalCheck.Seconds /= 2;
-        g.BuildingEventIntervalCheck.Exec(); // second for bake
-    }*/
-
-    // TODO: REMOVE BUILDING VIEW UPDATES
-    /******************8
-    if (g.BuildingUpdateViewsCheck.BuildingEventIntervalCheck == null)
-    {
-        g.BuildingUpdateViewsCheck.BuildingEventIntervalCheck = g.BuildingEventIntervalCheck;
-    }
-    if (addBuildingQuery)
-    {
-        g.DiffLog.Action = LogAction.Write;
-        g.DiffLog.Key = "buildingchoice_xy";
-        g.DiffLog.Value = g.InputBuildSequenceCheck.BuildingChoice + "_("+buildingX+","+buildingY+")";
-        g.DiffLog.Exec();
-        g.BuildingUpdateViewsCheck.AddQueryX = buildingX;
-        g.BuildingUpdateViewsCheck.AddQueryY = buildingY;
-    }
-    if (playerLoaded)
-    {
-        g.BuildingUpdateViewsCheck.Exec();
-    }
-    if (playerLoaded && g.BuildingUpdateViewsCheck)
-    {
-        g.TempleCount = g.BuildingUpdateViewsCheck.Counts['t'];
-        // Debug.Log("Building Views updated");
-    }
-    ******************/
 
     // END OF LOOP ITERATION - FLUSH LOG
     {

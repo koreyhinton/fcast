@@ -23,6 +23,7 @@ namespace Fcast
     }
     public class DiffLog : IExec
     {
+        public static bool DebugMode { get; set; } = false;
         public LogAction Action { get; set; } = LogAction.Write;
         public string Key { get; set; } = null;
         public string Value { get; set; } = null;
@@ -40,7 +41,8 @@ namespace Fcast
                 {
                     cumulativeLog += ""+log+Environment.NewLine;
                 }
-                Debug.Log(cumulativeLog);
+                if (DebugMode)
+                    Debug.Log(cumulativeLog);
                 _unflushedLogs.Clear();
                 return;
             }
