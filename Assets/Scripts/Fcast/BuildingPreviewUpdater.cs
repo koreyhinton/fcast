@@ -3,7 +3,8 @@ namespace Fcast
 {
     public class BuildingPreviewUpdater : IExec
     {
-        public bool Valid { get; set; } = false;
+        public bool PreviewExists { get; set; } = false;
+        public bool ValidPlacement { get; set; } = false;
         public char BuildingChoice { get; set; } = (char)0;
         public int X { get; set; }
         public int Y { get; set; }
@@ -13,7 +14,7 @@ namespace Fcast
 
         private void Color()
         {
-            var color = Valid ? new Color(1f, 1f, 1f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);
+            var color = ValidPlacement ? new Color(1f, 1f, 1f, 0.5f) : new Color(1f, 0f, 0f, 0.5f);
             foreach(var c in _previewBuildGO.GetComponentsInChildren<SpriteRenderer>())
             {
                 c.color = color;
@@ -60,6 +61,7 @@ namespace Fcast
             {
                 UnityEngine.Object.Destroy(_previewBuildGO);
                 _previewBuildGO = null;
+                PreviewExists = false;
             }
             if (removeBuild)
                 return;
@@ -69,6 +71,7 @@ namespace Fcast
                 _lastBuildingChoice = BuildingChoice;
                 _lastPreviewXY.X = X;
                 _lastPreviewXY.Y = Y;
+                PreviewExists = true;
             }
             else if (X != _lastPreviewXY.X || Y != _lastPreviewXY.Y)
             {

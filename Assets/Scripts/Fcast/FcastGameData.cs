@@ -32,11 +32,16 @@ namespace Fcast
         public TimberChopIntervalCheck TimberChopIntervalCheck { get; set; } = new TimberChopIntervalCheck();
         public GameType Type { get; set; }
         public Dictionary<ResourceType, Resource> MageResources { get; set; }
-        public BuildingEventIntervalCheck BuildingEventIntervalCheck { get; set; } = new BuildingEventIntervalCheck();
-        public BuildingUpdateViewsCheck BuildingUpdateViewsCheck { get; set; } = new BuildingUpdateViewsCheck();
+        public BuildingSpawner BuildingSpawner { get; set; } // input (set null to remove it)
+        public BuildingRazer BuildingRazer { get; set; } // input (set null to remove it)
+        public BuildingSpawner QueuedSpawner { get; set; } // output (for new spawners)
+        public BuildingRazer QueuedRazer { get; set; } // output (for new razers)
+        //public BuildingEventIntervalCheck BuildingEventIntervalCheck { get; set; } = new BuildingEventIntervalCheck();
+        //public BuildingUpdateViewsCheck BuildingUpdateViewsCheck { get; set; } = new BuildingUpdateViewsCheck();
         public BuildingPreviewUpdater BuildingPreviewUpdater { get; set; } = new BuildingPreviewUpdater();
         public InputBuildSequenceCheck InputBuildSequenceCheck { get; set; } = new InputBuildSequenceCheck();
         public DiffLog DiffLog { get; set; } = new DiffLog();
         public IGrid Grid { get; set; }
+        public bool Frame { get; set; }
     }
 }

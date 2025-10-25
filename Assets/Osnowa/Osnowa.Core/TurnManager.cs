@@ -11,6 +11,7 @@
     using global::Osnowa.Osnowa.Example.ECS;
     using Debug = UnityEngine.Debug;
     using Osnowa.Grid; //using GameLogic.AI.Navigation;
+    using System.Linq;
 
     public class TurnManager : ITurnManager
     {
@@ -31,6 +32,8 @@
         private readonly RealTimeFeature _realTimeFeature;
         private IGroup<GameEntity> _energyReadyEntities;
         private IGroup<GameEntity> _entitiesWithEnergy;
+        private List<BuildingSpawner> _buildingSpawnList = new List<BuildingSpawner>();
+        private List<BuildingRazer> _buildingRazeList = new List<BuildingRazer>();
         private FcastGameData _gameData = new FcastGameData();
         private IGrid _grid; // private INavigator _navigator;
 
@@ -96,7 +99,54 @@
             _gameData.Over = false;
             _gameData.Tick = tick;
             _gameData.Type = Fcast.GameType.FirstPlayerRtsSecondPlayerRtt; // todo: get this based on UI 2-player checkbox instead
-            FcastGameLoop.It(_gameData);
+
+            List<BuildingSpawner> spawned = new List<BuildingSpawner>();
+            List<BuildingRazer> razed = new List<BuildingRazer>();
+            List<int> spawnRemoveIndices = new List<int>();
+            List<int> razeRemoveIndices = new List<int>();
+            int iIt = 0;
+            _gameData.Frame = true;
+            do
+            {
+                _gameData.QueuedSpawner = null;
+                _gameData.QueuedRazer = null;
+                bool spawnSet = false;
+                bool razeSet = false;
+                if (iIt < _buildingSpawnList.Count)
+                {
+                    spawnSet = true;
+                    _gameData.BuildingSpawner = _buildingSpawnList[iIt];
+                }
+                else
+                    _gameData.BuildingSpawner = null;
+                if (iIt < _buildingRazeList.Count)
+                {
+                    razeSet = true;
+                    _gameData.BuildingRazer = _buildingRazeList[iIt];
+                }
+                else
+                    _gameData.BuildingRazer = null;
+                FcastGameLoop.It(_gameData);
+                _gameData.Frame = false;
+                if (razeSet && _gameData.BuildingRazer == null)
+                    razeRemoveIndices.Add(iIt);
+                if (spawnSet && _gameData.BuildingSpawner == null)
+                    spawnRemoveIndices.Add(iIt);
+                if (_gameData.QueuedSpawner != null)
+                    spawned.Add(_gameData.QueuedSpawner);
+                if (_gameData.QueuedRazer != null)
+                    razed.Add(_gameData.QueuedRazer);
+                iIt++;
+            } while(iIt < Math.Max(_buildingSpawnList.Count, _buildingRazeList.Count));
+            if (spawnRemoveIndices.Any())
+                Debug.Log(spawnRemoveIndices.First());
+            foreach (var i in spawnRemoveIndices.OrderByDescending(x => x)) //desc
+                { _buildingSpawnList.RemoveAt(i); Debug.Log("removed spawn"); }
+            foreach (var i in razeRemoveIndices.OrderByDescending(x => x)) //desc
+                _buildingRazeList.RemoveAt(i);
+
+            _buildingSpawnList.AddRange(spawned);
+            _buildingRazeList.AddRange(razed);
 
             bool needsInput = _gameContext.isWaitingForInput && (_gameContext.playerDecision.Decision == Decision.None);
             if (needsInput)
