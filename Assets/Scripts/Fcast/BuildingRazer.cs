@@ -12,6 +12,13 @@ namespace Fcast
         public char BuildingChoice { get; set; }
         private int _health { get; set; } = 100;
 
+        public BuildingRazer() : base() {}
+        public BuildingRazer(GameObject go) : base()
+        {
+            _buildGO = go;
+            _initialized = true;
+        }
+
         public override void Exec()
         {
             if (!_initialized)
