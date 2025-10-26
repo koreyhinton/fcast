@@ -32,6 +32,7 @@
         private readonly RealTimeFeature _realTimeFeature;
         private IGroup<GameEntity> _energyReadyEntities;
         private IGroup<GameEntity> _entitiesWithEnergy;
+        private List<BuildingRazer> _rttRazeList = new List<BuildingRazer>();
         private List<BuildingSpawner> _buildingSpawnList = new List<BuildingSpawner>();
         private List<BuildingRazer> _buildingRazeList = new List<BuildingRazer>();
         private FcastGameData _gameData = new FcastGameData();
@@ -75,13 +76,13 @@
                     }
                 }
             }
-            if (_gameData.Monsters.Count == 0)
+            if (_gameData.NeutralCreatures.Count == 0)
             {
                 foreach (var gameEntity in _entitiesWithEnergy)
                 {
                     if (!gameEntity.isPlayerControlled && gameEntity.hasIntegrity)
                     {
-                        _gameData.Monsters.Add(gameEntity);
+                        _gameData.NeutralCreatures.Add(gameEntity);
                     }
                 }
 
@@ -100,6 +101,7 @@
             _gameData.Tick = tick;
             _gameData.Type = Fcast.GameType.FirstPlayerRtsSecondPlayerRtt; // todo: get this based on UI 2-player checkbox instead
 
+            List<BuildingRazer> rttSpawned = new List<BuildingRazer>();
             List<BuildingSpawner> spawned = new List<BuildingSpawner>();
             List<BuildingRazer> razed = new List<BuildingRazer>();
             List<int> spawnRemoveIndices = new List<int>();
@@ -108,8 +110,11 @@
             _gameData.Frame = true;
             do
             {
+                _gameData.QueuedRttRazer = null;
                 _gameData.QueuedSpawner = null;
                 _gameData.QueuedRazer = null;
+                if (iIt < _rttRazeList.Count)
+                    _gameData.RttRazer = _rttRazeList[iIt];
                 bool spawnSet = false;
                 bool razeSet = false;
                 if (iIt < _buildingSpawnList.Count)
@@ -136,6 +141,8 @@
                     spawned.Add(_gameData.QueuedSpawner);
                 if (_gameData.QueuedRazer != null)
                     razed.Add(_gameData.QueuedRazer);
+                if (_gameData.QueuedRttRazer != null)
+                    rttSpawned.Add(_gameData.QueuedRttRazer);
                 iIt++;
             } while(iIt < Math.Max(_buildingSpawnList.Count, _buildingRazeList.Count));
             if (spawnRemoveIndices.Any())
@@ -147,6 +154,7 @@
 
             _buildingSpawnList.AddRange(spawned);
             _buildingRazeList.AddRange(razed);
+            _rttRazeList.AddRange(rttSpawned);
 
             bool needsInput = _gameContext.isWaitingForInput && (_gameContext.playerDecision.Decision == Decision.None);
             if (needsInput)

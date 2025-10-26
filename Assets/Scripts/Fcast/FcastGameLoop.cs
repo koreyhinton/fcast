@@ -41,6 +41,9 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     bool addBuildingQuery = false;
     bool placingBuildPreview = false;
     bool placingValidBuildPreview = false;
+    bool clickedToSpawnMonster = false;
+    Osnowa.Osnowa.Core.Position clickedToSpawnMonsterGridPosition
+        = new Osnowa.Osnowa.Core.Position(0,0);
 
     // ONE-TIME ONLY LOGIC
     if (g.MageResources == null)
@@ -99,9 +102,43 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         // Debug.Log("trees: " + g.MageResources[ResourceType.Timber].Amount);
     }
 
+    // MOUSE INPUT CHECK - SPAWN RTT/SECOND-PLAYER MONSTER UNIT
+    if (
+        playerLoaded &&
+        g.Frame &&
+        Input.GetMouseButtonDown(0)
+    )
+    {
+        var grid = UnityEngine.Object.FindObjectOfType<Grid>();
+        clickedToSpawnMonster = true;
+        Vector3 worldPosition
+            = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3Int gridPosition = grid.WorldToCell(worldPosition);
+        clickedToSpawnMonsterGridPosition = new Osnowa.Osnowa.Core.Position(
+            gridPosition.x,
+            gridPosition.y
+        );
+    }
+
+    if (
+        clickedToSpawnMonster &&
+        g.Grid.IsWalkable(clickedToSpawnMonsterGridPosition)
+    )
+    {
+        string prefabName = "Prefabs/MonsterView";
+        var prefab = Resources.Load<GameObject>(prefabName);
+        g.QueuedRttRazer = new BuildingRazer(UnityEngine.Object.Instantiate(
+            prefab,
+            new Vector3(clickedToSpawnMonsterGridPosition.x, clickedToSpawnMonsterGridPosition.y, 0f),
+            Quaternion.identity,
+            /*parent:*/ null
+        ));
+    }
+
     // KEYBOARD INPUT SEQUENCE CHECK
     if (playerLoaded)
     {
+        // ./InputBuildSequenceCheck.cs
         g.InputBuildSequenceCheck.Exec();
     }
     if (

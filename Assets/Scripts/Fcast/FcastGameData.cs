@@ -26,7 +26,7 @@ namespace Fcast
         public bool Over { get; set; } 
         public GameObject Player { get; set; }
         public HashSet<GameEntity> Mages { get; set; } = new HashSet<GameEntity>();
-        public HashSet<GameEntity> Monsters { get; set; } = new HashSet<GameEntity>();
+        public HashSet<GameEntity> NeutralCreatures { get; set; } = new HashSet<GameEntity>();
         public EventIntervalCheck EventIntervalCheck { get; set; } = new EventIntervalCheck();
         public GoldMineIntervalCheck GoldMineIntervalCheck { get; set; } = new GoldMineIntervalCheck();
         public TimberChopIntervalCheck TimberChopIntervalCheck { get; set; } = new TimberChopIntervalCheck();
@@ -34,8 +34,10 @@ namespace Fcast
         public Dictionary<ResourceType, Resource> MageResources { get; set; }
         public BuildingSpawner BuildingSpawner { get; set; } // input (set null to remove it)
         public BuildingRazer BuildingRazer { get; set; } // input (set null to remove it)
+        public BuildingRazer RttRazer { get; set; } // input (set null to remove it)
         public BuildingSpawner QueuedSpawner { get; set; } // output (for new spawners)
         public BuildingRazer QueuedRazer { get; set; } // output (for new razers)
+        public BuildingRazer QueuedRttRazer { get; set; } // output (for new razers)
         public BuildingPreviewUpdater BuildingPreviewUpdater { get; set; } = new BuildingPreviewUpdater();
         public InputBuildSequenceCheck InputBuildSequenceCheck { get; set; } = new InputBuildSequenceCheck();
         public DiffLog DiffLog { get; set; } = new DiffLog();
