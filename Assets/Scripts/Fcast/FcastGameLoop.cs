@@ -32,13 +32,11 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     bool playerBounce = false;
     // bool aimBuildKeyAccepted = false; // final build placement (not preview)
     bool aimKeyPressed = false;
-    bool aimWillConstructBuilding = false;
-    bool aimWillTryBakeUnit = false;
     int buildingX = -1;
     int buildingY = -1;
     int playerX = -1;
     int playerY = -1;
-    bool addBuildingQuery = false;
+    bool previewStampedForBuild = false;
     bool placingBuildPreview = false;
     bool placingValidBuildPreview = false;
     bool clickedToSpawnMonster = false;
@@ -102,13 +100,178 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         // Debug.Log("trees: " + g.MageResources[ResourceType.Timber].Amount);
     }
 
+    // COLLISION DETECTED
+    if (
+        playerLoaded &&
+        g.RttRazer != null &&
+        playerX == g.RttRazer.X &&
+        playerY == g.RttRazer.Y &&
+        g.LastFrameCollisionState == 0
+    )
+    {
+        g.LastFrameCollisionState = 1;
+    }
+
+    // SETUP RECEIVE DAMAGE
+    /*if (
+        playerLoaded &&
+        !player.hasReceiveDamage
+    )
+    {
+        player.AddReceiveDamage(100, player.id.Id);
+    }*/
+
+    // POST-CLICK - COLLISION HANDLING
+    if (
+        playerLoaded &&
+        g.RttPathTarget.X != -1 &&
+        g.RttPathTarget.X != 0 &&
+        g.RttRazer != null &&
+        //g.RttFrame == g.RttFrameMax &&//g.RttFrame < g.RttFrameMax &&
+        g.LastFrameCollisionState == 1
+    )
+    {
+        // X direction happens first,
+        // Rtt/mouse player gets priority in a collision
+        g.LastFrameCollisionState = 2;
+
+        player.integrity.Integrity = player.integrity.Integrity-20 >= 0
+            ? player.integrity.Integrity - 20
+            : 0;
+        player.integrity.MaxIntegrity = 100;
+        Debug.Log("Hit! -20 damage");
+    }
+
+    // if no longer colliding, reset the state back to 0
+    if (
+        g.LastFrameCollisionState == 2 && (
+        playerX != g.RttRazer.X ||
+        playerY != g.RttRazer.Y)
+    )
+    {
+        g.LastFrameCollisionState = 0;
+    }
+
+    // second priority collision (player unit moves away from monster unit)
+    if (
+        g.LastFrameCollisionState == 1 &&
+        g.RttRazer != null &&
+        g.RttPathTarget.X == -1 &&
+        g.RttPathTarget.Y == -1 && (
+        playerX != g.RttRazer.X ||
+        playerY != g.RttRazer.Y)
+    )
+    {
+        Debug.Log("eliminated monster unit");
+        g.RttRazer.HitDamageReceived = 100;
+        ((IExec)g.RttRazer).Exec(); // eliminate the
+        g.RttRazer = null;          // monster unit
+        g.RttUnitCount = 0;
+        g.LastFrameCollisionState = 0;
+    }
+
+    // POST-CLICK - RTT PLAYER MOVE TO TARGET
+
+    if (
+        playerLoaded &&
+        g.RttPathTarget.X != -1 &&
+        g.RttRazer != null &&
+        g.RttFrame < g.RttFrameMax
+    )
+    {
+        g.RttFrame++;
+    }
+    if (
+        playerLoaded &&
+        g.RttPathTarget.X != -1 &&
+        g.RttRazer != null &&
+        g.RttFrame == g.RttFrameMax
+    )
+    {
+        g.RttFrame = 0; // reset
+        int xDelta = g.RttPathTarget.X - g.RttRazer.X;
+        /*Debug.Log("fromX,toX,delta: " +
+            g.RttRazer.X + "," + 
+            (g.RttRazer.X+xDelta) + "," + 
+            xDelta);*/
+
+        g.RttRazer.X +=
+            xDelta == 0 
+                ? xDelta 
+                : xDelta<0 
+                    ? -xDelta/xDelta 
+                    : xDelta/xDelta;
+        ((IExec)g.RttRazer).Exec();
+    }
+
+    if (playerLoaded && g.RttRazer != null && g.RttPathTarget.X == g.RttRazer.X)
+        g.RttPathTarget.X = -1;
+
+    if (
+        playerLoaded &&
+        g.RttRazer != null &&
+        g.RttPathTarget.X == -1 &&
+        g.RttPathTarget.Y != -1 &&
+        g.RttFrame < g.RttFrameMax
+    )
+    {
+        g.RttFrame++;
+    }
+    if (
+        playerLoaded &&
+        g.RttPathTarget.X == -1 &&
+        g.RttPathTarget.Y != -1 &&
+        g.RttRazer != null &&
+        g.RttFrame == g.RttFrameMax
+    )
+    {
+        g.RttFrame = 0; // reset
+        int yDelta = g.RttPathTarget.Y - g.RttRazer.Y;
+        g.RttRazer.Y += yDelta == 0
+            ? yDelta
+            : yDelta<0
+                ? yDelta/-yDelta
+                : yDelta/yDelta;
+        ((IExec)g.RttRazer).Exec();
+    }
+    if (
+        playerLoaded &&
+        g.RttPathTarget.X == -1 &&
+        g.RttPathTarget.Y != -1 &&
+        g.RttRazer != null &&
+        g.RttPathTarget.Y == g.RttRazer.Y
+    )
+    {
+        g.RttPathTarget.Y = -1;
+    }
+
+    // MOUSE INPUT CHECK - MOVE RTT/SECOND-PLAYER MONSTER UNIT
+    if (
+        playerLoaded &&
+        g.RttUnitCount > 0 &&
+        g.RttRazer != null &&
+        Input.GetMouseButtonDown(0)
+    )
+    {
+        var grid = UnityEngine.Object.FindObjectOfType<Grid>();
+        clickedToSpawnMonster = true;
+        Vector3 worldPosition
+            = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3Int gridPosition = grid.WorldToCell(worldPosition);
+        // Debug.Log("RttRazer move detected");
+        g.RttPathTarget.X = gridPosition.x;
+        g.RttPathTarget.Y = gridPosition.y;
+    }
+
     // MOUSE INPUT CHECK - SPAWN RTT/SECOND-PLAYER MONSTER UNIT
     if (
         playerLoaded &&
+        g.RttUnitCount == 0 &&
         g.Frame &&
         Input.GetMouseButtonDown(0)
     )
     {
+        g.RttUnitCount++;
         var grid = UnityEngine.Object.FindObjectOfType<Grid>();
         clickedToSpawnMonster = true;
         Vector3 worldPosition
@@ -127,12 +290,14 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     {
         string prefabName = "Prefabs/MonsterView";
         var prefab = Resources.Load<GameObject>(prefabName);
-        g.QueuedRttRazer = new BuildingRazer(UnityEngine.Object.Instantiate(
+        g.QueuedRttRazer = new MonsterBuildingRazer(UnityEngine.Object.Instantiate(
             prefab,
             new Vector3(clickedToSpawnMonsterGridPosition.x, clickedToSpawnMonsterGridPosition.y, 0f),
             Quaternion.identity,
             /*parent:*/ null
         ));
+        g.QueuedRttRazer.X = clickedToSpawnMonsterGridPosition.x;
+        g.QueuedRttRazer.Y = clickedToSpawnMonsterGridPosition.y;
     }
 
     // KEYBOARD INPUT SEQUENCE CHECK
@@ -246,6 +411,7 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     )
     {
         // enough gold and walkable
+        previewStampedForBuild = true;
 
         // queue a building spawner
         g.QueuedSpawner = new BuildingSpawner();
@@ -254,6 +420,11 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         g.QueuedSpawner.BuildingChoice = g.InputBuildSequenceCheck.BuildingChoice;
         g.MageResources[ResourceType.Gold].Amount -= costTable[g.QueuedSpawner.BuildingChoice];
         ((IExec)g.QueuedSpawner).Exec();
+    }
+    if (previewStampedForBuild && g.QueuedSpawner.BuildingChoice == 'g')
+    {
+        Debug.Log("Added to hashset: " + (g.QueuedSpawner.X+","+g.QueuedSpawner.Y));
+        g.GoldMineCoords.Add(g.QueuedSpawner.X+","+g.QueuedSpawner.Y);
     }
 
     if (g.BuildingSpawner != null)
@@ -303,7 +474,20 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     }
     if (g.BuildingRazer != null && g.BuildingRazer)
     {
+        // 0 health
         g.BuildingRazer = null;
+    }
+    if (
+        g.RttRazer != null &&
+        g.RttRazer is MonsterBuildingRazer &&
+        ((MonsterBuildingRazer)g.RttRazer).Bounty == 0 &&
+        g.GoldMineCoords.Contains(g.RttRazer.X+","+g.RttRazer.Y)
+    )
+    {
+        // each Rtt unit can only steal once
+        ((MonsterBuildingRazer)g.RttRazer).Bounty  = 100;
+        g.MageResources[ResourceType.Gold].Amount -= 100;
+        Debug.Log("$100 stolen from Rts player");
     }
 
     // END OF LOOP ITERATION - FLUSH LOG

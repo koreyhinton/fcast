@@ -67,6 +67,21 @@ namespace Fcast
                 UnityEngine.Object.Destroy(_buildGO);
                 _buildGO = null;
             }
+            else if (_buildGO != null)
+            {
+                _buildGO.transform.position = new Vector3(X, Y, 0f);
+            }
+        }
+    }
+    public class MonsterBuildingRazer : BuildingRazer
+    {
+        public int Bounty { get; set; } // Rtt-player gold stolen
+                                        // from the opposing Rts player.
+                                        // Returnable back to the Rts player
+                                        // as the same gold amount in reward.
+        public MonsterBuildingRazer(GameObject go) : base(go)
+        {
+            Bounty = 0;
         }
     }
 }

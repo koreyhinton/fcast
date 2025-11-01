@@ -40,6 +40,12 @@ namespace Fcast
         public BuildingRazer QueuedRttRazer { get; set; } // output (for new razers)
         public BuildingPreviewUpdater BuildingPreviewUpdater { get; set; } = new BuildingPreviewUpdater();
         public InputBuildSequenceCheck InputBuildSequenceCheck { get; set; } = new InputBuildSequenceCheck();
+        public HashSet<string> GoldMineCoords { get; set; } = new HashSet<string>();
+        public int LastFrameCollisionState { get; set; } = 0; // 0,1,2
+        public int RttFrame { get; set; }
+        public int RttFrameMax { get; set; } = 60;
+        public int RttUnitCount { get; set; }
+        public XY RttPathTarget { get; set; } = new XY() { X = -1, Y = -1 };
         public DiffLog DiffLog { get; set; } = new DiffLog();
         public Osnowa.Osnowa.Grid.Grid Grid { get; set; }
         public bool Frame { get; set; }

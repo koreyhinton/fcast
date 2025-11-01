@@ -72,6 +72,13 @@ a <ARROW_KEYS> t <ARROW_KEYS> p ESC
 ## Manifest
 
 ```
+# Health bar sprite render/load related files
+
+{ ./Assets/Scripts/UI/EntityUiPresenter.cs *, ./Assets/Scripts/UI/PositionEffectPresenter.cs, ./Assets/Scripts/GameLogic/GameCore/EnvironmentPresenter.cs, ./Assets/Osnowa/Osnowa.Unity/ViewCreator.cs }
+    --> CALLS FETCH
+./Assets/Scripts/UnityUtilities/PoolingManager.cs
+
+
 # Zenject injection example (inject IGrid)
 #     Just added IGrid to constructor and private field:
 ./Assets/Osnowa/Osnowa.Core/TurnManager.cs
