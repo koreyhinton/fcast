@@ -106,6 +106,7 @@
             List<BuildingRazer> razed = new List<BuildingRazer>();
             List<int> spawnRemoveIndices = new List<int>();
             List<int> razeRemoveIndices = new List<int>();
+            List<int> rttRemoveIndices = new List<int>();
             int iIt = 0;
             _gameData.Frame = true;
             do
@@ -113,10 +114,14 @@
                 _gameData.QueuedRttRazer = null;
                 _gameData.QueuedSpawner = null;
                 _gameData.QueuedRazer = null;
-                if (iIt < _rttRazeList.Count)
-                    _gameData.RttRazer = _rttRazeList[iIt];
                 bool spawnSet = false;
                 bool razeSet = false;
+                bool rttSet = false;
+                if (iIt < _rttRazeList.Count)
+                {
+                    rttSet = true;
+                    _gameData.RttRazer = _rttRazeList[iIt];
+                }
                 if (iIt < _buildingSpawnList.Count)
                 {
                     spawnSet = true;
@@ -133,6 +138,8 @@
                     _gameData.BuildingRazer = null;
                 FcastGameLoop.It(_gameData);
                 _gameData.Frame = false;
+                if (rttSet && _gameData.RttRazer == null)
+                    rttRemoveIndices.Add(iIt);
                 if (razeSet && _gameData.BuildingRazer == null)
                     razeRemoveIndices.Add(iIt);
                 if (spawnSet && _gameData.BuildingSpawner == null)
@@ -147,6 +154,8 @@
             } while(iIt < Math.Max(_buildingSpawnList.Count, _buildingRazeList.Count));
             if (spawnRemoveIndices.Any())
                 Debug.Log(spawnRemoveIndices.First());
+            foreach (var i in rttRemoveIndices.OrderByDescending(x => x)) //desc
+                { _rttRazeList.RemoveAt(i); Debug.Log("removed rtt unit"); }
             foreach (var i in spawnRemoveIndices.OrderByDescending(x => x)) //desc
                 { _buildingSpawnList.RemoveAt(i); Debug.Log("removed spawn"); }
             foreach (var i in razeRemoveIndices.OrderByDescending(x => x)) //desc
