@@ -28,6 +28,7 @@
 	{
 		[SerializeField] private PoolingManager _poolingManager;
 		[SerializeField] private TurnManagerBehaviour _turnManager;
+		[SerializeField] private global::Fcast.FcastMain _fcastMain; // optional: Fcast per-frame game loop
 		private bool _gameInitialized;
 
 		
@@ -100,6 +101,9 @@
 			_context.ReplacePlayerDecision(Decision.None, Position.Zero, Position.MinValue);
 
 			_turnManager.gameObject.SetActive(true);
+
+			if (_fcastMain != null)
+				_fcastMain.gameObject.SetActive(true);
 		}
 
 		/// <summary>

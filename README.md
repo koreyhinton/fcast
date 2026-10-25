@@ -52,6 +52,16 @@ Aim and build a temple and then a **p**riestess:
 a <ARROW_KEYS> t <ARROW_KEYS> p ESC
 ```
 
+## Build (run before opening the editor)
+
+Some C# files are generated from bash scripts using [orc](https://github.com/koreyhinton/orc) and are gitignored (e.g. `Assets/Scripts/Fcast/FcastMain.cs` comes from `FcastMain.sh`). Run the shell build **before launching the Unity editor**, and again after editing any of the `.sh` files:
+
+```
+NSMAP=/path/to/orc/lib/src/main/bash/com/koreyhinton/nsmap ./build.sh
+```
+
+If the editor opens without the generated files, the project won't compile (`GameInitializer.cs` references `FcastMain`), and the `FcastMain` object in the scene will show a missing script. Keep the generated files' `.meta` files committed: their GUIDs link the scripts to the scene.
+
 ## Linux development exceptions
 
 1. Just launch the editor directly without the hub (since Unity Hub on Ubuntu failed to use custom file locations)

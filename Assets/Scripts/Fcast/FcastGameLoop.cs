@@ -11,14 +11,11 @@
 // * sections start with ALL-CAPS comment (which is the section header line)
 // ** path marker prefix: ./ or ../
 
-using System.Collections.Generic; using System.Linq; using UnityEngine; namespace Fcast { public static class FcastGameLoop { private static bool _once = false; private static int _i = 0; public static void It(FcastGameData g) {
+using System.Collections.Generic; using System.Linq; using UnityEngine; namespace Fcast { public static class FcastGameLoop { private static bool _once = false; public static void It(FcastGameData g) {
 
     // START OF GAME LOOP ITERATION - VARIABLE RESETS
     // called from ../../Osnowa/Osnowa.Core/TurnManager.cs
     // var resets
-    var angles = new System.Collections.Generic.List<float>();
-    angles.Add(-25f);
-    angles.Add(25f);
     Dictionary<char, int> costTable = new Dictionary<char, int>()
     {
         {'g', 100}, //goldmine
@@ -29,7 +26,6 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
     var player = g.Mages.FirstOrDefault();
     GameObject playerView = null;
     bool playerLoaded = false;
-    bool playerBounce = false;
     // bool aimBuildKeyAccepted = false; // final build placement (not preview)
     bool aimKeyPressed = false;
     int buildingX = -1;
@@ -320,23 +316,8 @@ using System.Collections.Generic; using System.Linq; using UnityEngine; namespac
         g.DiffLog.Key = "playerXY";
         g.DiffLog.Value = "(" + playerX + "," + playerY + ")";
         g.DiffLog.Exec();
-        g.EventIntervalCheck.Type = EventIntervalCheckType.PlayerBounce;
-        g.EventIntervalCheck.Exec();
 
         g.InputBuildSequenceCheck.Frame = g.Frame;
-    }
-    if (!g.Over && playerLoaded && g.EventIntervalCheck)
-    {
-        playerBounce = true;
-    }
-    if (playerBounce)
-    {
-        _i = (_i+1) % angles.Count;
-        // var e = spriteTransform.localEulerAngles;
-        playerView.transform.Rotate(0, 0, angles[_i]);
-        // Debug.Log("e.z = " + angles[_i]);
-        // e.z = angles[_i];
-        //spriteTransform.localEulerAngles = new Vector3(0, 0, angles[_i]); //e;
     }
 
     // GET POSITION FOR BUILD PREVIEW OR REGULAR BUILD

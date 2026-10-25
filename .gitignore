@@ -43,3 +43,6 @@ sysinfo.txt
 *.unitypackage
 
 *~
+
+# Bash-assemblied (orc) cs files
+Assets/Scripts/Fcast/FcastMain.cs
